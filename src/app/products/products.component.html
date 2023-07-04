@@ -1,6 +1,19 @@
 
 <h2> Kjøp en original t-shirt </h2>
 
+<div>
+    <!-- products.component.html -->
+    <h2>Products</h2>
+    <ul>
+        <li *ngFor="let product of products">
+            <h3>{{ product.name }}</h3>
+            <p>Price: {{ product.price }}</p>
+            <!-- Add to cart button -->
+            <button (click)="addToCart()">Add to Cart</button>
+        </li>
+    </ul>
+</div>
+
 <h4>Offered to you by the fathers of twomates (TM)</h4>
 
 <p>Love</p>
