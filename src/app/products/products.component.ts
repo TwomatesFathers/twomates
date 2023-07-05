@@ -18,6 +18,20 @@ import { Product } from '../interfaces/product.interface';
         </li>
     </ul>
   `,
+  template: `
+    <!-- Product details and add to cart button -->
+    <!-- products.component.html -->
+    <h2>Products</h2>
+    <ul>
+        <li *ngFor="let product of products">
+            <img class="product-image" [src]="product.imageUrl" alt="Product Image">
+            <h3>{{ product.name }}</h3>
+            <p>Price: {{ product.price }}</p>
+            <!-- Add to cart button -->
+            <button (click)="addToCart(product)">Add {{ product.name }} to Cart</button>
+        </li>
+    </ul>
+  `,
 })
 export class ProductsComponent implements OnInit {
   products: Product[] = [];
