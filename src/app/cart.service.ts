@@ -1,7 +1,7 @@
 // cart.service.ts
 import { Injectable } from '@angular/core';
-import { CartItem } from 'src/shared/cartItem.interface';
-import { Product } from 'src/shared/product.interface';
+import { CartItem } from 'src/app/interfaces/cartItem.interface';
+import { Product } from './interfaces/product.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +19,6 @@ export class CartService {
   addToCart(item: Product): void {
     const cartItems = this.getCartItems();
     const existingCartItem = cartItems.find((cartItem: CartItem) => cartItem.id === item.id)
-    console.log("Jeg er her" + item);
     if (existingCartItem) {
       // If the item with the same id is found, append the quantity to it
       this.updateQuantity(existingCartItem.id, existingCartItem.quantity + 1)

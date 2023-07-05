@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CartService } from '../cart.service';
+import { CartItem } from '../interfaces/cartItem.interface';
 
 @Component({
   selector: 'app-cart',
@@ -12,7 +13,6 @@ import { CartService } from '../cart.service';
         <button (click)="updateQuantity(item.id, item.quantity + 1)">+</button>
         <button (click)="updateQuantity(item.id, item.quantity - 1)">-</button>
         <button (click)="removeItem(item.id)">Remove</button>
-        
       </li>
     </ul>
     <button routerLink="/order" class="router-link-button"> Proceed to checkout</button>
@@ -20,7 +20,7 @@ import { CartService } from '../cart.service';
   `,
 })
 export class CartComponent {
-  cartItems: any[];
+  cartItems: CartItem[];
 
   constructor(private cartService: CartService) {
     this.cartItems = this.cartService.getCartItems();

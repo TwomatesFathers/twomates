@@ -1,37 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { PrintfulAPIService } from '../printful/printful-api.service';
 import { Product } from '../interfaces/product.interface';
+import { RouterModule } from '@angular/router';
+import { NgFor } from '@angular/common';
 
 @Component({
   selector: 'app-products',
-  template: `
-    <!-- Product details and add to cart button -->
-    <!-- products.component.html -->
-    <h2>Products</h2>
-    <ul>
-        <li *ngFor="let product of products">
-            <img class="product-image" [src]="product.imageUrl" alt="Product Image">
-            <h3>{{ product.name }}</h3>
-            <p>Price: {{ product.price }}</p>
-            <!-- Add to cart button -->
-            <button (click)="addToCart(product)">Add {{ product.name }} to Cart</button>
-        </li>
-    </ul>
-  `,
-  template: `
-    <!-- Product details and add to cart button -->
-    <!-- products.component.html -->
-    <h2>Products</h2>
-    <ul>
-        <li *ngFor="let product of products">
-            <img class="product-image" [src]="product.imageUrl" alt="Product Image">
-            <h3>{{ product.name }}</h3>
-            <p>Price: {{ product.price }}</p>
-            <!-- Add to cart button -->
-            <button (click)="addToCart(product)">Add {{ product.name }} to Cart</button>
-        </li>
-    </ul>
-  `,
+  templateUrl: './products.component.html',
+  styleUrls: ['./products.component.scss'],
+  imports:[
+    RouterModule,
+    NgFor
+  ],
+  standalone: true
 })
 export class ProductsComponent implements OnInit {
   products: Product[] = [];
