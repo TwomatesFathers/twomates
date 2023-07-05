@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { PrintfulAPIService } from '../printful/printful-api.service';
+import { Product, ProductResponse } from '../interfaces/product-detail.interface';
 
 @Component({
   selector: 'app-product-detail',
@@ -7,14 +9,24 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./product-detail.component.scss']
 })
 export class ProductDetailComponent implements OnInit {
-  productId!: number;
+  product: Product | null = null;
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(private route: ActivatedRoute, private printfulApi: PrintfulAPIService) { }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.productId = +params['id'];
-      // Perform any additional actions with the product ID
+      this.getProductById(params['id']);
+    })
+  }
+
+  private getProductById(id: number): void {
+    this.printfulApi.getProduct(id).subscribe({
+      next: (data: ProductResponse) => {
+        this.product = data.result
+      },
+      error: (error: any) => {
+        console.error(error);
+      }
     });
   }
 }
