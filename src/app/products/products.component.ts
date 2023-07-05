@@ -17,13 +17,13 @@ export class ProductsComponent implements OnInit {
   }
 
   private getProducts(): void {
-    this.printfulApi.products.subscribe(
-      (data: any) => {
+    this.printfulApi.products.subscribe({
+      next: (data: any) => {
         this.products = data.result;
       },
-      (error) => {
+      error: (error: any) => {
         console.error(error);
       }
-    );
+    });
   }
 }

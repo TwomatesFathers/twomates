@@ -1,6 +1,8 @@
+import { Product } from './../interfaces/product.interface';
+import { ProductResponse } from '../interfaces/product-detail.interface';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
 @Injectable({
@@ -13,7 +15,7 @@ export class PrintfulAPIService {
 
   constructor(private http: HttpClient) {}
 
-  public get products(): Observable<any> {
+  public get products(): Observable<Product[]> {
     if (this.isProduction) {
       const url = `${this.apiUrl}/store/products`;
       const headers = {
@@ -21,13 +23,31 @@ export class PrintfulAPIService {
         'Authorization': `Bearer ${this.apiToken}`,
       };
 
-      return this.http.get<any>(url, { headers });
+      return this.http.get<Product[]>(url, { headers });
     } else {
       return this.getLocalProducts();
     }
   }
 
-  private getLocalProducts(): Observable<any> {
-    return this.http.get<any>('assets/products.json');
+  private getLocalProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>('assets/products.json');
+  }
+
+  public getProduct(id: number): Observable<ProductResponse> {
+    if (this.isProduction) {
+      const url = `${this.apiUrl}/store/products/${id}`;
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiToken}`,
+      };
+
+      return this.http.get<ProductResponse>(url, { headers });
+    } else {
+      return this.getLocalProduct(id);
+    }
+  }
+
+  private getLocalProduct(id: number): Observable<ProductResponse> {
+    return this.http.get<ProductResponse>(`assets/products/${id}.json`)
   }
 }
