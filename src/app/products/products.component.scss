@@ -1,0 +1,22 @@
+/* products.component.scss */
+
+.products-container {
+    /* Optional: Add some padding or margins if needed */
+    padding: 20px;
+  }
+  
+  .product-grid {
+    /* Use CSS Grid for the grid layout */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Change 250px to your desired width */
+    gap: 20px; /* Adjust the gap between products */
+  }
+  
+  .product-item {
+    /* Optional: Add some styling to the product items if needed */
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  

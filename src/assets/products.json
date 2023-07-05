@@ -1,0 +1,47 @@
+{
+    "code": 200,
+    "result": [
+        {
+            "id": 313301891,
+            "external_id": "64a5955a81a662",
+            "name": "Twomates hoodie",
+            "variants": 12,
+            "synced": 12,
+            "thumbnail_url": "https://files.cdn.printful.com/files/38e/38e124cdc5b9cc4b0c8edd304f1c3124_preview.png",
+            "is_ignored": false
+        },
+        {
+            "id": 313301797,
+            "external_id": "64a593ccd0ad27",
+            "name": "Twomates original (f)",
+            "variants": 4,
+            "synced": 4,
+            "thumbnail_url": "https://files.cdn.printful.com/files/e28/e2881571401a9953d41d3091d6b989e5_preview.png",
+            "is_ignored": false
+        },
+        {
+            "id": 313300704,
+            "external_id": "64a5906d686091",
+            "name": "Twomates bucket",
+            "variants": 2,
+            "synced": 2,
+            "thumbnail_url": "https://files.cdn.printful.com/files/a03/a036d713725f1c51df053e2287271311_preview.png",
+            "is_ignored": false
+        },
+        {
+            "id": 313230033,
+            "external_id": "64a48b002ba5b3",
+            "name": "Twomates original (m)",
+            "variants": 4,
+            "synced": 4,
+            "thumbnail_url": "https://files.cdn.printful.com/files/68c/68cae83af8f186fe18ee19e5f2cb04e4_preview.png",
+            "is_ignored": false
+        }
+    ],
+    "extra": [],
+    "paging": {
+        "total": 4,
+        "offset": 0,
+        "limit": 20
+    }
+}

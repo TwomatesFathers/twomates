@@ -1,5 +1,6 @@
-import { PrintfulAPIService } from './../printful/printful-api.service';
 import { Component, OnInit } from '@angular/core';
+import { PrintfulAPIService } from '../printful/printful-api.service';
+import { Product } from '../product/product.interface'; // Replace with the actual path to your Product interface
 
 @Component({
   selector: 'app-products',
@@ -7,19 +8,22 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./products.component.scss']
 })
 export class ProductsComponent implements OnInit {
+  products: Product[] = [];
+
   constructor(private printfulApi: PrintfulAPIService) {}
 
   ngOnInit() {
-    this.printfulApi.getProducts().subscribe(
-      (data) => {
-        // Handle the API response data here
-        console.log(data);
+    this.getProducts();
+  }
+
+  private getProducts(): void {
+    this.printfulApi.products.subscribe(
+      (data: any) => {
+        this.products = data.result;
       },
       (error) => {
-        // Handle any errors that occur during the API call
         console.error(error);
       }
     );
   }
-
 }

@@ -1,28 +1,33 @@
-import { environment } from './../../environments/environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PrintfulAPIService {
   private apiUrl = environment.apiUrl;
   private apiToken = environment.printfulApiToken;
+  private isProduction = environment.production;
 
   constructor(private http: HttpClient) {}
 
-  private getHeaders(): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.apiToken}`,
-    });
+  public get products(): Observable<any> {
+    if (this.isProduction) {
+      const url = `${this.apiUrl}/store/products`;
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiToken}`,
+      };
+
+      return this.http.get<any>(url, { headers });
+    } else {
+      return this.getLocalProducts();
+    }
   }
 
-  public getProducts(): Observable<any> {
-    const url = `${this.apiUrl}/store/products`; // Replace with the specific Printful API endpoint you want to access
-    const headers = this.getHeaders();
-
-    return this.http.get<any>(url, { headers });
+  private getLocalProducts(): Observable<any> {
+    return this.http.get<any>('assets/products.json');
   }
 }

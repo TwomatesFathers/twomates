@@ -9,6 +9,7 @@ import { HomeComponent } from './home/home.component';
 import { ProductsComponent } from './products/products.component';
 import { CartComponent } from './cart/cart.component';
 import { PrintfulAPIService } from './printful/printful-api.service';
+import { ProductComponent } from './product/product.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { PrintfulAPIService } from './printful/printful-api.service';
     NavigationComponent,
     HomeComponent,
     ProductsComponent,
-    CartComponent
+    CartComponent,
+    ProductComponent
   ],
   imports: [
     BrowserModule,

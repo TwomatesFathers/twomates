@@ -1,10 +1,20 @@
 <!-- navigation.component.html -->
-<nav>
-    <ul>
-        <li><a routerLink="/">Home</a></li>
-        <li><a routerLink="/products">Products</a></li>
-        <li><a routerLink="/cart">Cart</a></li>
-        <!-- Add more navigation links as needed -->
-    </ul>
+<nav class="navbar">
+    <div class="navbar-container">
+      <a routerLink="/home" class="navbar-logo">
+        <img src="assets/images/twomates-logo.svg" alt="Logo">
+      </a>
+      <ul class="navbar-links">
+        <li>
+          <a routerLink="/home" routerLinkActive="active">Home</a>
+        </li>
+        <li>
+          <a routerLink="/products" routerLinkActive="active">Products</a>
+        </li>
+        <li>
+          <a routerLink="/cart" routerLinkActive="active">Cart</a>
+        </li>
+      </ul>
+    </div>
 </nav>
   
