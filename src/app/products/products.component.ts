@@ -10,6 +10,7 @@ import { Product } from '../interfaces/product.interface';
     <h2>Products</h2>
     <ul>
         <li *ngFor="let product of products">
+            <img class="product-image" [src]="product.imageUrl" alt="Product Image">
             <h3>{{ product.name }}</h3>
             <p>Price: {{ product.price }}</p>
             <!-- Add to cart button -->

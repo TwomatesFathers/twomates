@@ -27,8 +27,6 @@ export class CartService {
       cartItems.push( { ...item, quantity: 1 });
       localStorage.setItem(this.cartKey, JSON.stringify(cartItems));
     }
-
-    
   }
 
   removeItem(itemId: number): void {
