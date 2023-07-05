@@ -2,8 +2,9 @@
 <div class="products-container">
     <div class="product-grid">
       <div *ngFor="let product of products" class="product-item">
-        <app-product [product]="product"></app-product>
+        <a [routerLink]="['/products', product.id]">
+            <app-product [product]="product"></app-product>
+        </a>
       </div>
     </div>
-  </div>
-  
+</div>
