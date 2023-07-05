@@ -2,7 +2,7 @@
 
 .products-container {
     /* Optional: Add some padding or margins if needed */
-    padding: 20px;
+    padding: 30px;
 }
   
 .product-grid {
@@ -26,4 +26,39 @@
     cursor: pointer; /* Set the cursor to pointer to indicate it's clickable */
 }
 
+.product-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+  
+    &:hover {
+      transform: scale(1.05);
+    }
+  
+    .product-image {
+      width: 100%;
+      max-height: 200px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+  
+    .product-name {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+  
+    .product-id {
+      font-size: 14px;
+      color: #777;
+    }
+  }
+
+
+  
   

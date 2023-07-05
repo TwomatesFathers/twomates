@@ -18,7 +18,7 @@ export class PrintfulAPIService {
       const url = `${this.apiUrl}/store/products`;
       const headers = {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.apiToken}`,
+        'Authorization': `Bearer ${this.apiToken}`,
       };
 
       return this.http.get<any>(url, { headers });

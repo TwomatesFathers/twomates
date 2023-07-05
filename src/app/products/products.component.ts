@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PrintfulAPIService } from '../printful/printful-api.service';
-import { Product } from '../product/product.interface'; // Replace with the actual path to your Product interface
+import { Product } from '../interfaces/product.interface';
 
 @Component({
   selector: 'app-products',
