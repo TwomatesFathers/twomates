@@ -1,27 +1,11 @@
-/* navigation.component.css */
-nav {
-    background-color: #f5f5f5;
-    padding: 10px;
-  }
-  
-  ul {
-    list-style: none;
-    display: flex;
-    justify-content: space-between;
-  }
-  
+/* navigation.component.scss */
+
+nav.navbar {
+  padding: 20px;
+  font-size: large;
+  font-family: 'Helvetica';
   li {
-    margin-right: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
   }
-  
-  a {
-    text-decoration: none;
-    color: #333;
-    padding: 5px;
-  }
-  
-  a:hover {
-    color: #000;
-    background-color: #eee;
-  }
-  
+}

@@ -1,8 +1,15 @@
-
-<h2> Kjøp en original t-shirt </h2>
-
-<h4>Offered to you by the fathers of twomates (TM)</h4>
-
-<p>Love</p>
-<p>Sandåden, Bendauk og Hele Petrus Halle</p>
-
+<!-- products.component.html -->
+<div class="products-container">
+    <div class="product-grid">
+      <div *ngFor="let product of products" class="product-item">
+        <a [routerLink]="['/products', product.id]">
+            <!-- product.component.html -->
+            <div class="product-container">
+              <img [src]="product.thumbnail_url" alt="{{ product.name }}" class="product-image">
+              <h2 class="product-name">{{ product.name }}</h2>
+              <p class="product-id">ID: {{ product.id }}</p>
+            </div>
+        </a>
+      </div>
+    </div>
+</div>
