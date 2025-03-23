@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Product } from '../../lib/supabase';
 import { useCart } from '../../context/CartContext';
-import { useTheme } from '../../context/ThemeContext';
 import { FiShoppingCart } from 'react-icons/fi';
 
 interface ProductCardProps {
@@ -11,7 +10,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart } = useCart();
-  const { theme } = useTheme();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -30,11 +28,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <Link to={`/product/${product.id}`} className="group">
-      <div className={`card h-full flex flex-col transition-all duration-300 hover:shadow-lg ${
-        theme === 'dark' 
-          ? 'bg-gray-800 border border-gray-700 hover:shadow-gray-700' 
-          : 'bg-white hover:shadow-gray-300'
-      }`}>
+      <div className="card h-full flex flex-col transition-all duration-300 hover:shadow-lg bg-white dark:bg-gray-800 dark:border dark:border-gray-700 dark:hover:shadow-gray-700 hover:shadow-gray-300 shadow-sm">
         {/* Product Image */}
         <div className="relative overflow-hidden">
           <img
@@ -45,7 +39,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
           
           {/* Quick add to cart button */}
           <motion.button
-            className="absolute bottom-4 right-4 bg-primary-tomato text-white p-3 rounded-full shadow-md transition-transform"
+            className="absolute bottom-4 right-4 text-white p-3 rounded-full shadow-md transition-transform"
+            style={{ backgroundColor: 'var(--primary-color)' }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={handleAddToCart}
@@ -63,33 +58,28 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
           {/* Featured badge */}
           {product.featured && (
-            <div className="absolute top-0 right-0 bg-secondary-green text-white text-xs font-bold px-3 py-1">
+            <div className="absolute top-0 right-0 text-white text-xs font-bold px-3 py-1" 
+              style={{ backgroundColor: 'var(--secondary-color)' }}>
               Featured
             </div>
           )}
         </div>
 
         {/* Product Info */}
-        <div className="p-4 flex-grow flex flex-col">
-          <h3 className={`font-medium text-lg mb-1 ${
-            theme === 'dark' ? 'text-white' : 'text-gray-900'
-          }`}>
+        <div className="p-4 flex-grow flex flex-col bg-white dark:bg-gray-800">
+          <h3 className="font-medium text-lg mb-1 text-gray-900 dark:text-white">
             {product.name}
           </h3>
-          <p className={`text-sm mb-2 line-clamp-2 ${
-            theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-          }`}>
+          <p className="text-sm mb-2 line-clamp-2 text-gray-600 dark:text-gray-300">
             {product.description}
           </p>
           <div className="mt-auto flex justify-between items-center">
-            <span className={`font-bold ${
-              theme === 'dark' ? 'text-primary-lightTomato' : 'text-primary-tomato'
-            }`}>
+            <span className="font-bold" style={{ 
+              color: 'var(--primary-color)',
+            }}>
               {formattedPrice}
             </span>
-            <span className={`text-xs capitalize ${
-              theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-            }`}>
+            <span className="text-xs capitalize text-gray-600 dark:text-gray-400">
               {product.category}
             </span>
           </div>

@@ -3,12 +3,10 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase, Product } from '../lib/supabase';
 import ProductCard from '../components/shop/ProductCard';
-import { useTheme } from '../context/ThemeContext';
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
@@ -38,11 +36,7 @@ const HomePage = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section className={`py-16 md:py-24 ${
-        theme === 'dark' 
-          ? 'bg-gray-900 text-white' 
-          : 'bg-gradient-to-r from-primary-lightTomato to-primary-tomato text-white'
-      }`}>
+      <section className="py-16 md:py-24 bg-gradient-to-r from-primary-lightTomato to-primary-tomato dark:bg-gray-900 text-white">
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
@@ -61,11 +55,7 @@ const HomePage = () => {
                   <Link to="/shop" className="btn btn-secondary">
                     Shop Now
                   </Link>
-                  <Link to="/about" className={`btn ${
-                    theme === 'dark' 
-                      ? 'bg-gray-800 text-white hover:bg-gray-700' 
-                      : 'bg-white text-primary-tomato hover:bg-gray-100'
-                  }`}>
+                  <Link to="/about" className="our-story-btn btn">
                     Our Story
                   </Link>
                 </div>
@@ -92,17 +82,13 @@ const HomePage = () => {
                     repeat: Infinity,
                     ease: "easeInOut" 
                   }}
-                  className={`${theme === 'dark' ? '' : 'drop-shadow-md'}`}
+                  className="dark:drop-shadow-none drop-shadow-md"
                 >
                   <image  
                     width="761" 
                     height="311" 
                     href="/Twomates.svg"
-                    style={{ 
-                      filter: theme === 'dark' 
-                        ? 'brightness(1.5) drop-shadow(0 0 4px rgba(255, 255, 255, 0.6))' 
-                        : 'brightness(1.2)' 
-                    }}
+                    className="brightness-110 dark:brightness-150 dark:drop-shadow-[0_0_4px_rgba(255,255,255,0.6)]"
                   />
                 </motion.svg>
               </motion.div>
@@ -112,7 +98,7 @@ const HomePage = () => {
       </section>
 
       {/* Featured Products */}
-      <section className={`py-16 ${theme === 'dark' ? 'bg-gray-800' : 'bg-[#FFFAF0]'}`}>
+      <section className="py-16 bg-white dark:bg-gray-800">
         <div className="container-custom">
           <div className="text-center mb-12">
             <motion.div
@@ -121,10 +107,10 @@ const HomePage = () => {
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
             >
-              <h2 className={`text-3xl font-bold font-display mb-4 ${theme === 'dark' ? 'text-white' : 'text-text'}`}>
+              <h2 className="text-3xl font-bold font-display mb-4 text-gray-900 dark:text-white">
                 Featured Products
               </h2>
-              <p className={`max-w-2xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p className="max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
                 Check out our most popular items, loved by customers worldwide.
               </p>
             </motion.div>
@@ -157,11 +143,7 @@ const HomePage = () => {
           <div className="text-center mt-12">
             <Link 
               to="/shop" 
-              className={`inline-flex items-center px-6 py-3 font-medium rounded-md ${
-                theme === 'dark' 
-                  ? 'bg-primary-tomato text-white hover:bg-primary-darkTomato' 
-                  : 'bg-white text-primary-tomato border border-primary-tomato hover:bg-primary-tomato hover:text-white'
-              } transition-colors`}
+              className="view-all-products-btn inline-flex items-center px-6 py-3 font-medium rounded-md"
             >
               View All Products
             </Link>
@@ -170,7 +152,7 @@ const HomePage = () => {
       </section>
 
       {/* About Section */}
-      <section className={`py-16 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+      <section className="py-16 bg-white dark:bg-gray-900">
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -180,18 +162,18 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="order-2 md:order-1"
             >
-              <h2 className={`text-3xl font-bold font-display mb-4 ${theme === 'dark' ? 'text-white' : 'text-text'}`}>
+              <h2 className="text-3xl font-bold font-display mb-4 text-gray-900 dark:text-white">
                 Our Story
               </h2>
-              <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p className="mb-4 text-gray-700 dark:text-gray-300">
                 Twomates started when two friends with a passion for art and fashion decided to create clothing that's as unique as the friendship that inspired it.
               </p>
-              <p className={`mb-6 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p className="mb-6 text-gray-700 dark:text-gray-300">
                 Every design tells a story of creativity, fun, and the joy of collaboration. When you wear our clothes, you become part of that story.
               </p>
               <Link 
                 to="/about" 
-                className={`inline-flex items-center font-medium ${theme === 'dark' ? 'text-primary-tomato hover:text-primary-lightTomato' : 'text-primary-tomato hover:text-primary-darkTomato'}`}
+                className="inline-flex items-center font-medium text-primary-tomato hover:text-primary-darkTomato dark:text-primary-tomato dark:hover:text-primary-lightTomato"
               >
                 Learn more about us
                 <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -207,7 +189,7 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="order-1 md:order-2"
             >
-              <div className={`rounded-lg overflow-hidden shadow-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+              <div className="rounded-lg overflow-hidden shadow-lg bg-gray-50 dark:bg-gray-800">
                 <img 
                   src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
                   alt="Two friends designing clothes" 
@@ -220,24 +202,20 @@ const HomePage = () => {
       </section>
 
       {/* Newsletter Section */}
-      <section className={`py-16 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'} ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+      <section className="py-16 bg-gray-50 dark:bg-gray-800">
         <div className="container-custom">
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className={`text-3xl font-bold font-display mb-4 ${theme === 'dark' ? 'text-white' : 'text-text'}`}>
+            <h2 className="text-3xl font-bold font-display mb-4 text-gray-900 dark:text-white">
               Join Our Newsletter
             </h2>
-            <p className={`mb-8 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+            <p className="mb-8 text-gray-700 dark:text-gray-300">
               Subscribe to get special offers, free giveaways, and exclusive deals.
             </p>
             <form className="flex flex-col sm:flex-row gap-4">
               <input 
                 type="email" 
                 placeholder="Enter your email" 
-                className={`flex-grow px-4 py-3 rounded-md ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:ring-primary-tomato focus:border-primary-tomato' 
-                    : 'bg-white border-gray-300 text-gray-900 focus:ring-primary-tomato focus:border-primary-tomato'
-                }`}
+                className="flex-grow px-4 py-3 rounded-md bg-white border-gray-300 text-gray-900 focus:ring-primary-tomato focus:border-primary-tomato dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400 dark:focus:ring-primary-tomato dark:focus:border-primary-tomato"
                 required 
               />
               <button 

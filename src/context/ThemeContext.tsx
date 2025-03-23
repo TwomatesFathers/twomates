@@ -37,7 +37,8 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>(getSavedTheme);
 
   useEffect(() => {
-    // Apply theme to document
+    // For Tailwind, we only need to toggle the 'dark' class
+    // The document element should have the dark class only when the theme is dark
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {

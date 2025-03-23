@@ -9,7 +9,7 @@ import { useTheme } from '../context/ThemeContext';
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { cart, totalItems, totalPrice, clearCart } = useCart();
+  const { cart, totalPrice, clearCart } = useCart();
   const { theme } = useTheme();
   
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Confirmation

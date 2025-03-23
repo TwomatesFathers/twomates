@@ -4,14 +4,12 @@ import { motion } from 'framer-motion';
 import { FiFilter, FiX, FiChevronDown } from 'react-icons/fi';
 import { supabase, Product } from '../lib/supabase';
 import ProductCard from '../components/shop/ProductCard';
-import { useTheme } from '../context/ThemeContext';
 
 const ShopPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterOpen, setFilterOpen] = useState(false);
-  const { theme } = useTheme();
   
   // Filters
   const categoryParam = searchParams.get('category') || '';
@@ -110,7 +108,7 @@ const ShopPage = () => {
         <div className="md:hidden">
           <button
             onClick={() => setFilterOpen(!filterOpen)}
-            className="flex items-center justify-between w-full py-3 px-4 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-white"
+            className="flex items-center justify-between w-full py-3 px-4 rounded-md bg-white text-gray-700 border border-gray-300 dark:bg-gray-800 dark:text-white dark:border-gray-700"
           >
             <span className="flex items-center">
               <FiFilter className="mr-2" />
@@ -126,9 +124,9 @@ const ShopPage = () => {
             filterOpen ? 'block' : 'hidden md:block'
           } w-full md:w-64 flex-shrink-0`}
         >
-          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-white border border-gray-200'}`}>
+          <div className="p-6 rounded-lg bg-white border border-gray-200 shadow-sm dark:bg-gray-800 dark:border-gray-700">
             <div className="mb-8">
-              <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Categories</h3>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Categories</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => {
@@ -137,8 +135,8 @@ const ShopPage = () => {
                   }}
                   className={`block px-3 py-2 rounded-md w-full text-left ${
                     !categoryParam 
-                      ? 'bg-primary-tomato text-white' 
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'primary-btn' 
+                      : 'text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   All Products
@@ -150,8 +148,8 @@ const ShopPage = () => {
                     onClick={() => handleCategoryClick(category)}
                     className={`block px-3 py-2 rounded-md w-full text-left ${
                       categoryParam === category 
-                        ? 'bg-primary-tomato text-white' 
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'primary-btn' 
+                        : 'text-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
                     {capitalizeFirstLetter(category)}
@@ -172,7 +170,7 @@ const ShopPage = () => {
                       onChange={(e) => handlePriceChange(e, 0)}
                       min="0"
                       max={priceRange[1]}
-                      className="w-full px-3 py-2 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 rounded-md bg-white border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                   </div>
                   <div>
@@ -182,7 +180,7 @@ const ShopPage = () => {
                       value={priceRange[1]}
                       onChange={(e) => handlePriceChange(e, 1)}
                       min={priceRange[0]}
-                      className="w-full px-3 py-2 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 rounded-md bg-white border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                   </div>
                 </div>
@@ -204,7 +202,7 @@ const ShopPage = () => {
               <select
                 value={sortBy}
                 onChange={handleSortChange}
-                className="w-full px-3 py-2 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 rounded-md bg-white border-gray-300 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 <option value="newest">Newest</option>
                 <option value="price-low">Price: Low to High</option>
@@ -214,7 +212,7 @@ const ShopPage = () => {
 
             <button
               onClick={resetFilters}
-              className="w-full py-2 px-4 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
+              className="w-full py-2 px-4 rounded-md bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
             >
               Reset Filters
             </button>
@@ -240,18 +238,18 @@ const ShopPage = () => {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-96 rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                <div key={i} className="h-96 rounded-lg animate-pulse bg-gray-200 dark:bg-gray-800" />
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="py-12 text-center bg-gray-100 dark:bg-gray-800 rounded-lg dark:border dark:border-gray-700">
+            <div className="py-12 text-center rounded-lg bg-gray-100 dark:bg-gray-800 dark:border dark:border-gray-700">
               <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">No products found</h2>
               <p className="mb-6 text-gray-600 dark:text-gray-300">
                 Try adjusting your filters or browse all products
               </p>
               <button 
                 onClick={resetFilters}
-                className="px-6 py-3 bg-primary-tomato text-white rounded-md hover:bg-primary-darkTomato transition-colors"
+                className="px-6 py-3 rounded-md primary-btn transition-colors"
               >
                 View All Products
               </button>
