@@ -41,7 +41,7 @@ const HomePage = () => {
       <section className={`py-16 md:py-24 ${
         theme === 'dark' 
           ? 'bg-gray-900 text-white' 
-          : 'bg-gradient-to-r from-primary-lightTomato to-primary-tomato text-white'
+          : 'bg-gradient-to-r from-primary-lightTomato to-primary-tomato text-gray-900'
       }`}>
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -112,7 +112,11 @@ const HomePage = () => {
       </section>
 
       {/* Featured Products */}
-      <section className={`py-16 ${theme === 'dark' ? 'bg-gray-800' : 'bg-[#FFFAF0]'}`}>
+      <section className={`py-16 ${
+        theme === 'dark' 
+          ? 'bg-card-dark text-white' 
+          : 'bg-white text-gray-900'
+      }`}>
         <div className="container-custom">
           <div className="text-center mb-12">
             <motion.div
@@ -121,10 +125,14 @@ const HomePage = () => {
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
             >
-              <h2 className={`text-3xl font-bold font-display mb-4 ${theme === 'dark' ? 'text-white' : 'text-text'}`}>
+              <h2 className={`text-3xl font-bold font-display mb-4 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
                 Featured Products
               </h2>
-              <p className={`max-w-2xl mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p className={`max-w-2xl mx-auto ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              }`}>
                 Check out our most popular items, loved by customers worldwide.
               </p>
             </motion.div>
@@ -170,7 +178,11 @@ const HomePage = () => {
       </section>
 
       {/* About Section */}
-      <section className={`py-16 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+      <section className={`py-16 ${
+        theme === 'dark' 
+          ? 'bg-gray-900 text-white' 
+          : 'bg-white text-gray-900'
+      }`}>
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -180,13 +192,19 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="order-2 md:order-1"
             >
-              <h2 className={`text-3xl font-bold font-display mb-4 ${theme === 'dark' ? 'text-white' : 'text-text'}`}>
+              <h2 className={`text-3xl font-bold font-display mb-4 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
                 Our Story
               </h2>
-              <p className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p className={`mb-4 ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              }`}>
                 Twomates started when two friends with a passion for art and fashion decided to create clothing that's as unique as the friendship that inspired it.
               </p>
-              <p className={`mb-6 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+              <p className={`mb-6 ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+              }`}>
                 Every design tells a story of creativity, fun, and the joy of collaboration. When you wear our clothes, you become part of that story.
               </p>
               <Link 
@@ -207,7 +225,7 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="order-1 md:order-2"
             >
-              <div className={`rounded-lg overflow-hidden shadow-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+              <div className={`rounded-lg overflow-hidden shadow-lg ${theme === 'dark' ? 'bg-card-dark' : 'bg-white'}`}>
                 <img 
                   src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
                   alt="Two friends designing clothes" 
@@ -220,13 +238,21 @@ const HomePage = () => {
       </section>
 
       {/* Newsletter Section */}
-      <section className={`py-16 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'} ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+      <section className={`py-16 ${
+        theme === 'dark' 
+          ? 'bg-card-dark text-white' 
+          : 'bg-gray-100 text-gray-900'
+      }`}>
         <div className="container-custom">
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className={`text-3xl font-bold font-display mb-4 ${theme === 'dark' ? 'text-white' : 'text-text'}`}>
+            <h2 className={`text-3xl font-bold font-display mb-4 ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
               Join Our Newsletter
             </h2>
-            <p className={`mb-8 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+            <p className={`mb-8 ${
+              theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+            }`}>
               Subscribe to get special offers, free giveaways, and exclusive deals.
             </p>
             <form className="flex flex-col sm:flex-row gap-4">

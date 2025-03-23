@@ -18,7 +18,11 @@ const Layout = () => {
   }, [theme]);
   
   return (
-    <div className="min-h-screen flex flex-col bg-background-light dark:bg-gray-900 text-text-light dark:text-white">
+    <div className={`min-h-screen flex flex-col ${
+      theme === 'dark' 
+        ? 'bg-gray-900 text-white' 
+        : 'bg-background-light text-text-light'
+    }`}>
       <Header />
       <motion.main 
         className="flex-grow"

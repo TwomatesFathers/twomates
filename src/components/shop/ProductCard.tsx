@@ -32,8 +32,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
     <Link to={`/product/${product.id}`} className="group">
       <div className={`card h-full flex flex-col transition-all duration-300 hover:shadow-lg ${
         theme === 'dark' 
-          ? 'bg-gray-800 border border-gray-700 hover:shadow-gray-700' 
-          : 'bg-white hover:shadow-gray-300'
+          ? 'border border-gray-700 hover:shadow-gray-700' 
+          : 'hover:shadow-gray-300'
       }`}>
         {/* Product Image */}
         <div className="relative overflow-hidden">
@@ -70,7 +70,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
 
         {/* Product Info */}
-        <div className="p-4 flex-grow flex flex-col">
+        <div className="p-4 flex-grow flex flex-col bg-white dark:bg-gray-800">
           <h3 className={`font-medium text-lg mb-1 ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}>

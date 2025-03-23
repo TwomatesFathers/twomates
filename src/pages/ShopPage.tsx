@@ -110,7 +110,11 @@ const ShopPage = () => {
         <div className="md:hidden">
           <button
             onClick={() => setFilterOpen(!filterOpen)}
-            className="flex items-center justify-between w-full py-3 px-4 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-white"
+            className={`flex items-center justify-between w-full py-3 px-4 rounded-md ${
+              theme === 'dark' 
+                ? 'bg-gray-800 text-white border border-gray-700' 
+                : 'bg-white text-gray-700 border border-gray-300'
+            }`}
           >
             <span className="flex items-center">
               <FiFilter className="mr-2" />
@@ -126,9 +130,15 @@ const ShopPage = () => {
             filterOpen ? 'block' : 'hidden md:block'
           } w-full md:w-64 flex-shrink-0`}
         >
-          <div className={`p-6 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-white border border-gray-200'}`}>
+          <div className={`p-6 rounded-lg ${
+            theme === 'dark' 
+              ? 'bg-gray-800 border border-gray-700' 
+              : 'bg-white border border-gray-200'
+          }`}>
             <div className="mb-8">
-              <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Categories</h3>
+              <h3 className={`text-lg font-semibold mb-4 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>Categories</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => {
@@ -165,24 +175,36 @@ const ShopPage = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">Min</label>
+                    <label className={`block text-sm mb-1 ${
+                      theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                    }`}>Min</label>
                     <input
                       type="number"
                       value={priceRange[0]}
                       onChange={(e) => handlePriceChange(e, 0)}
                       min="0"
                       max={priceRange[1]}
-                      className="w-full px-3 py-2 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className={`w-full px-3 py-2 rounded-md ${
+                        theme === 'dark' 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">Max</label>
+                    <label className={`block text-sm mb-1 ${
+                      theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                    }`}>Max</label>
                     <input
                       type="number"
                       value={priceRange[1]}
                       onChange={(e) => handlePriceChange(e, 1)}
                       min={priceRange[0]}
-                      className="w-full px-3 py-2 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className={`w-full px-3 py-2 rounded-md ${
+                        theme === 'dark' 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     />
                   </div>
                 </div>
@@ -200,11 +222,17 @@ const ShopPage = () => {
             </div>
 
             <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Sort By</h3>
+              <h3 className={`text-lg font-semibold mb-4 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>Sort By</h3>
               <select
                 value={sortBy}
                 onChange={handleSortChange}
-                className="w-full px-3 py-2 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className={`w-full px-3 py-2 rounded-md ${
+                  theme === 'dark' 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
               >
                 <option value="newest">Newest</option>
                 <option value="price-low">Price: Low to High</option>
@@ -214,7 +242,11 @@ const ShopPage = () => {
 
             <button
               onClick={resetFilters}
-              className="w-full py-2 px-4 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
+              className={`w-full py-2 px-4 rounded-md ${
+                theme === 'dark' 
+                  ? 'bg-gray-700 text-white hover:bg-gray-600' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
             >
               Reset Filters
             </button>
@@ -224,14 +256,18 @@ const ShopPage = () => {
         {/* Products Grid */}
         <div className="flex-grow">
           {/* Results Header */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <div className={`flex items-center justify-between mb-6 pb-4 border-b ${
+            theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+          }`}>
+            <h1 className={`text-2xl font-bold ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
               {categoryParam 
                 ? `${capitalizeFirstLetter(categoryParam)}`
                 : 'All Products'
               }
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
               {products.length} {products.length === 1 ? 'product' : 'products'}
             </p>
           </div>
@@ -240,13 +276,21 @@ const ShopPage = () => {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-96 rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse" />
+                <div key={i} className={`h-96 rounded-lg animate-pulse ${
+                  theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'
+                }`} />
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="py-12 text-center bg-gray-100 dark:bg-gray-800 rounded-lg dark:border dark:border-gray-700">
-              <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">No products found</h2>
-              <p className="mb-6 text-gray-600 dark:text-gray-300">
+            <div className={`py-12 text-center rounded-lg ${
+              theme === 'dark' ? 'bg-gray-800 border border-gray-700' : 'bg-gray-100'
+            }`}>
+              <h2 className={`text-xl font-semibold mb-2 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>No products found</h2>
+              <p className={`mb-6 ${
+                theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+              }`}>
                 Try adjusting your filters or browse all products
               </p>
               <button 
