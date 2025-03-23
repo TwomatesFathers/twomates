@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+:root {
+  --primary-color: #FF6347;
+  --primary-hover: #E5352B;
+  --secondary-color: #4CAF50;
+  --secondary-hover: #3D8C40;
+  --background-light: #FFFAF0;
+  --text-light: #333333;
+  --card-light: #FFFFFF;
+  --background-dark: #121212;
+  --text-dark: #F3F4F6;
+  --card-dark: #1F2937;
+}
+
+/* Dark mode styles */
+.dark {
+  --primary-color: #FF6347;
+  --primary-hover: #E5352B;
+  --secondary-color: #4CAF50;
+  --secondary-hover: #3D8C40;
+  --background: var(--background-dark);
+  --text: var(--text-dark);
+  --card: var(--card-dark);
+}
+
+/* Light mode is the default */
+:root {
+  --background: var(--background-light);
+  --text: var(--text-light);
+  --card: var(--card-light);
+}
+
+/* Custom styling */
+body {
+  background-color: var(--background);
+  color: var(--text);
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Custom component classes */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition-property: all;
+  transition-duration: 200ms;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-hover);
+}
+
+.card {
+  background-color: var(--card);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.container-custom {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-custom {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
