@@ -33,6 +33,15 @@
   --card: var(--card-light);
 }
 
+/* Logo styles */
+.logo-image {
+  filter: none;
+}
+
+.dark .logo-image {
+  filter: brightness(1.5) drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+}
+
 /* Custom styling */
 body {
   background-color: var(--background);

@@ -49,7 +49,7 @@ const HomePage = () => {
                   Wear Your <span className="text-secondary-green">Creativity</span>
                 </h1>
                 <p className="text-lg mb-8">
-                  Unique designs created by friends. Express yourself with our fun, colorful clothing.
+                  Unique designs created by mates. Express yourself with our fun, colorful clothing.
                 </p>
                 <div className="flex space-x-4">
                   <Link to="/shop" className="btn btn-secondary">
@@ -166,7 +166,7 @@ const HomePage = () => {
                 Our Story
               </h2>
               <p className="mb-4 text-gray-700 dark:text-gray-300">
-                Twomates started when two friends with a passion for art and fashion decided to create clothing that's as unique as the friendship that inspired it.
+                Twomates started when two mates with a passion for art and fashion decided to create clothing that's as unique as the mates that inspired it.
               </p>
               <p className="mb-6 text-gray-700 dark:text-gray-300">
                 Every design tells a story of creativity, fun, and the joy of collaboration. When you wear our clothes, you become part of that story.
@@ -192,7 +192,7 @@ const HomePage = () => {
               <div className="rounded-lg overflow-hidden shadow-lg bg-gray-50 dark:bg-gray-800">
                 <img 
                   src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
-                  alt="Two friends designing clothes" 
+                  alt="Two mates designing clothes" 
                   className="w-full h-auto"
                 />
               </div>
@@ -248,9 +248,9 @@ const mockProducts: Product[] = [
   },
   {
     id: 2,
-    name: "Tomato Friends Hoodie",
+    name: "Tomato mates Hoodie",
     price: 49.99,
-    description: "Stay cozy with our premium hoodie featuring the tomato friends.",
+    description: "Stay cozy with our premium hoodie featuring the tomato mates.",
     image_url: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     category: "hoodies",
     featured: true,

@@ -13,7 +13,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-1">
             <Logo />
             <p className="mt-4 text-gray-600 dark:text-gray-300">
-              Twomates - Fun, creative clothing crafted by friends with passion.
+              Twomates - Fun, creative clothing crafted by mates with passion.
             </p>
             <div className="flex mt-6 space-x-4">
               <a 

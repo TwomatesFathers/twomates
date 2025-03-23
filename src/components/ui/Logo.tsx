@@ -1,9 +1,6 @@
 import { motion } from 'framer-motion';
-import { useTheme } from '../../context/ThemeContext';
 
 const Logo = ({ className = '' }: { className?: string }) => {
-  const { theme } = useTheme();
-  
   return (
     <div className={`flex items-center ${className}`}>
       <motion.div 
@@ -26,11 +23,7 @@ const Logo = ({ className = '' }: { className?: string }) => {
             width="761" 
             height="311" 
             href="/Twomates.svg"
-            style={{ 
-              filter: theme === 'dark' 
-                ? 'brightness(1.5) drop-shadow(0 0 4px rgba(255, 255, 255, 0.6))' 
-                : 'none' 
-            }}
+            className="logo-image" 
           />
         </motion.svg>
         

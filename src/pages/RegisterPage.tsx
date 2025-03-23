@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { FiUser, FiMail, FiLock, FiAlertCircle, FiFacebook } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
-import { useTheme } from '../context/ThemeContext';
 
 const RegisterPage = () => {
   const [fullName, setFullName] = useState('');
@@ -17,7 +16,6 @@ const RegisterPage = () => {
   
   const { signUp, signInWithGoogle, signInWithFacebook } = useAuth();
   const navigate = useNavigate();
-  const { theme } = useTheme();
 
   const validateForm = () => {
     if (password !== confirmPassword) {
@@ -83,18 +81,18 @@ const RegisterPage = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} p-8 text-center rounded-lg shadow-md`}
+          className="bg-white dark:bg-gray-800 p-8 text-center rounded-lg shadow-md"
         >
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
             </svg>
           </div>
-          <h2 className={`text-2xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Registration Successful!</h2>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mb-6`}>
+          <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Registration Successful!</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             Check your email for a confirmation link. You'll be redirected to the login page.
           </p>
-          <div className={`animate-pulse ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+          <div className="animate-pulse text-gray-600 dark:text-gray-300">
             Redirecting...
           </div>
         </motion.div>
@@ -108,18 +106,18 @@ const RegisterPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className={`${theme === 'dark' ? 'bg-gray-800 shadow-lg' : 'bg-white shadow-md'} p-8 rounded-lg`}
+        className="bg-card-light dark:bg-card-dark p-8 rounded-lg shadow-md dark:shadow-lg"
       >
         <div className="text-center mb-8">
-          <h1 className={`text-3xl font-bold font-display mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Create Account</h1>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Join Twomates and start shopping!</p>
+          <h1 className="text-3xl font-bold font-display mb-2 text-gray-900 dark:text-white">Create Account</h1>
+          <p className="text-gray-600 dark:text-gray-300">Join Twomates and start shopping!</p>
         </div>
 
         {error && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-start mb-6"
+            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-md flex items-start mb-6"
           >
             <FiAlertCircle className="mr-2 mt-1 flex-shrink-0" />
             <span>{error}</span>
@@ -128,23 +126,19 @@ const RegisterPage = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="fullName" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
+            <label htmlFor="fullName" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">
               Full Name
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiUser className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
+                <FiUser className="text-gray-400 dark:text-gray-400" />
               </div>
               <input
                 id="fullName"
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className={`pl-10 w-full rounded-md focus:border-primary-tomato focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-tomato focus:ring focus:ring-primary-tomato dark:focus:ring-primary-lightTomato focus:ring-opacity-50"
                 placeholder="John Doe"
                 required
               />
@@ -152,23 +146,19 @@ const RegisterPage = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="email" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
+            <label htmlFor="email" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">
               Email Address
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiMail className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
+                <FiMail className="text-gray-400 dark:text-gray-400" />
               </div>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`pl-10 w-full rounded-md focus:border-primary-tomato focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-tomato focus:ring focus:ring-primary-tomato dark:focus:ring-primary-lightTomato focus:ring-opacity-50"
                 placeholder="you@example.com"
                 required
               />
@@ -176,49 +166,41 @@ const RegisterPage = () => {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="password" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
+            <label htmlFor="password" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">
               Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiLock className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
+                <FiLock className="text-gray-400 dark:text-gray-400" />
               </div>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`pl-10 w-full rounded-md focus:border-primary-tomato focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-tomato focus:ring focus:ring-primary-tomato dark:focus:ring-primary-lightTomato focus:ring-opacity-50"
                 placeholder="••••••••"
                 required
                 minLength={6}
               />
             </div>
-            <p className={`mt-1 text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Must be at least 6 characters</p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Must be at least 6 characters</p>
           </div>
 
           <div className="mb-6">
-            <label htmlFor="confirmPassword" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-200">
               Confirm Password
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiLock className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
+                <FiLock className="text-gray-400 dark:text-gray-400" />
               </div>
               <input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`pl-10 w-full rounded-md focus:border-primary-tomato focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                className="pl-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-tomato focus:ring focus:ring-primary-tomato dark:focus:ring-primary-lightTomato focus:ring-opacity-50"
                 placeholder="••••••••"
                 required
               />
@@ -236,10 +218,10 @@ const RegisterPage = () => {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className={`w-full border-t ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'}`}></div>
+                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className={`px-2 ${theme === 'dark' ? 'bg-gray-800 text-gray-400' : 'bg-white text-gray-500'}`}>Or continue with</span>
+                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or continue with</span>
               </div>
             </div>
 
@@ -247,39 +229,31 @@ const RegisterPage = () => {
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
-                className={`w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium ${
-                  theme === 'dark'
-                    ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
+                className="w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600"
               >
-                <FcGoogle className="h-5 w-5" />
-                <span className="ml-2">Google</span>
+                <FcGoogle className="mr-2 h-5 w-5" />
+                Google
               </button>
               <button
                 type="button"
-                onClick={handleFacebookSignIn}
-                className={`w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium ${
-                  theme === 'dark'
-                    ? 'bg-gray-700 border-gray-600 text-white hover:bg-gray-600'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
+                onClick={handleFacebookSignIn} 
+                className="w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600"
               >
-                <FiFacebook className="h-5 w-5 text-blue-600" />
-                <span className="ml-2">Facebook</span>
+                <FiFacebook className="mr-2 h-5 w-5 text-[#1877F2]" />
+                Facebook
               </button>
             </div>
           </div>
-        </form>
 
-        <div className="mt-8 text-center">
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-            Already have an account?{' '}
-            <Link to="/login" className="text-primary-tomato hover:text-primary-darkTomato font-medium">
-              Sign in
-            </Link>
-          </p>
-        </div>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Already have an account?{' '}
+              <Link to="/login" className="font-medium text-primary-tomato hover:text-primary-darkTomato dark:text-primary-lightTomato dark:hover:text-primary-tomato">
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </form>
       </motion.div>
     </div>
   );

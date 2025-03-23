@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { FiMail, FiLock, FiAlertCircle, FiFacebook } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 
@@ -12,7 +11,6 @@ const LoginPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signInWithGoogle, signInWithFacebook } = useAuth();
-  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,18 +55,18 @@ const LoginPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="card p-8"
+        className="card bg-card-light dark:bg-card-dark p-8 shadow-lg rounded-lg"
       >
         <div className="text-center mb-8">
-          <h1 className={`text-3xl font-bold font-display mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Welcome Back</h1>
-          <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Sign in to your Twomates account</p>
+          <h1 className="text-3xl font-bold font-display mb-2 text-gray-900 dark:text-white">Welcome Back</h1>
+          <p className="text-gray-600 dark:text-gray-300">Sign in to your Twomates account</p>
         </div>
 
         {error && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
-            className={`${theme === 'dark' ? 'bg-red-900/20 border-red-800 text-red-300' : 'bg-red-50 border-red-200 text-red-700'} border px-4 py-3 rounded-md flex items-start mb-6`}
+            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-md flex items-start mb-6"
           >
             <FiAlertCircle className="mr-2 mt-1 flex-shrink-0" />
             <span>{error}</span>
@@ -77,10 +75,10 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="email" className={`block mb-2 font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Email</label>
-            <div className={`relative rounded-md shadow-sm ${theme === 'dark' ? 'bg-gray-800' : ''}`}>
+            <label htmlFor="email" className="block mb-2 font-medium text-gray-700 dark:text-gray-200">Email</label>
+            <div className="relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiMail className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`} />
+                <FiMail className="text-gray-500 dark:text-gray-400" />
               </div>
               <input
                 id="email"
@@ -88,21 +86,17 @@ const LoginPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className={`block w-full pl-10 py-3 pr-3 rounded-md focus:outline-none focus:ring-2 ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:ring-primary-lightTomato' 
-                    : 'border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-primary-tomato'
-                }`}
+                className="block w-full pl-10 py-3 pr-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-tomato dark:focus:ring-primary-lightTomato"
                 placeholder="Enter your email"
               />
             </div>
           </div>
 
           <div className="mb-6">
-            <label htmlFor="password" className={`block mb-2 font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Password</label>
-            <div className={`relative rounded-md shadow-sm ${theme === 'dark' ? 'bg-gray-800' : ''}`}>
+            <label htmlFor="password" className="block mb-2 font-medium text-gray-700 dark:text-gray-200">Password</label>
+            <div className="relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiLock className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`} />
+                <FiLock className="text-gray-500 dark:text-gray-400" />
               </div>
               <input
                 id="password"
@@ -110,16 +104,12 @@ const LoginPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className={`block w-full pl-10 py-3 pr-3 rounded-md focus:outline-none focus:ring-2 ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:ring-primary-lightTomato' 
-                    : 'border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-primary-tomato'
-                }`}
+                className="block w-full pl-10 py-3 pr-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-tomato dark:focus:ring-primary-lightTomato"
                 placeholder="Enter your password"
               />
             </div>
             <div className="mt-1 flex justify-end">
-              <Link to="/forgot-password" className={`text-sm ${theme === 'dark' ? 'text-primary-lightTomato hover:text-primary-tomato' : 'text-primary-tomato hover:text-primary-darkTomato'}`}>
+              <Link to="/forgot-password" className="text-sm text-primary-tomato hover:text-primary-darkTomato dark:text-primary-lightTomato dark:hover:text-primary-tomato">
                 Forgot password?
               </Link>
             </div>
@@ -133,7 +123,7 @@ const LoginPage = () => {
             {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
 
-          <div className={`my-6 flex items-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+          <div className="my-6 flex items-center text-gray-500 dark:text-gray-400">
             <div className="flex-grow border-t border-current"></div>
             <span className="mx-4 text-sm">OR CONTINUE WITH</span>
             <div className="flex-grow border-t border-current"></div>
@@ -143,11 +133,7 @@ const LoginPage = () => {
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              className={`flex items-center justify-center py-3 px-4 rounded-md ${
-                theme === 'dark' 
-                  ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-                  : 'bg-white border border-gray-300 hover:bg-gray-50'
-              }`}
+              className="flex items-center justify-center py-3 px-4 rounded-md bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
             >
               <FcGoogle className="mr-2" size={20} />
               <span>Google</span>
@@ -155,11 +141,7 @@ const LoginPage = () => {
             <button
               type="button"
               onClick={handleFacebookSignIn}
-              className={`flex items-center justify-center py-3 px-4 rounded-md ${
-                theme === 'dark' 
-                  ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-                  : 'bg-white border border-gray-300 hover:bg-gray-50'
-              }`}
+              className="flex items-center justify-center py-3 px-4 rounded-md bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
             >
               <FiFacebook className="mr-2 text-[#1877F2]" size={20} />
               <span>Facebook</span>
@@ -167,9 +149,9 @@ const LoginPage = () => {
           </div>
 
           <div className="text-center">
-            <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
+            <p className="text-gray-600 dark:text-gray-300">
               Don't have an account?{' '}
-              <Link to="/register" className={`font-medium ${theme === 'dark' ? 'text-primary-lightTomato hover:text-primary-tomato' : 'text-primary-tomato hover:text-primary-darkTomato'}`}>
+              <Link to="/register" className="font-medium text-primary-tomato hover:text-primary-darkTomato dark:text-primary-lightTomato dark:hover:text-primary-tomato">
                 Sign up
               </Link>
             </p>

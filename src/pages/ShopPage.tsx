@@ -291,7 +291,7 @@ const mockProducts: Product[] = [
   {
     id: 2,
     created_at: new Date().toISOString(),
-    name: 'Tomato Friends Hoodie',
+    name: 'Tomato Mates Hoodie',
     description: 'Stay cozy with our premium hoodie featuring the tomato mascots.',
     price: 59.99,
     image_url: 'https://via.placeholder.com/400x500?text=Twomates+Hoodie',
