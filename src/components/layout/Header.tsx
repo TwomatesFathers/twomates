@@ -29,7 +29,7 @@ const Header = () => {
   }, [isAnimating]);
 
   return (
-    <header className={`${theme === 'dark' ? 'bg-gray-900 shadow-gray-950' : 'bg-white shadow-sm'} sticky top-0 z-50 transition-colors duration-300`}>
+    <header className="bg-white shadow-sm dark:bg-gray-900 dark:shadow-gray-950 sticky top-0 z-50 transition-colors duration-300">
       <div className="container-custom py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -39,16 +39,16 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className={`${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} transition-colors font-medium`}>
+            <Link to="/" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
               Home
             </Link>
-            <Link to="/shop" className={`${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} transition-colors font-medium`}>
+            <Link to="/shop" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
               Shop
             </Link>
-            <Link to="/about" className={`${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} transition-colors font-medium`}>
+            <Link to="/about" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
               About
             </Link>
-            <Link to="/contact" className={`${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} transition-colors font-medium`}>
+            <Link to="/contact" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
               Contact
             </Link>
           </nav>
@@ -58,11 +58,7 @@ const Header = () => {
             {/* Theme Toggle Button */}
             <motion.button
               onClick={handleToggleTheme}
-              className={`rounded-full p-2 ${isAnimating ? 'theme-switch' : ''} ${
-                theme === 'dark' 
-                  ? 'bg-gray-800 text-yellow-300 hover:bg-gray-700' 
-                  : 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'
-              } transition-all duration-300`}
+              className={`rounded-full p-2 ${isAnimating ? 'theme-switch' : ''} bg-indigo-100 text-indigo-800 hover:bg-indigo-200 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700 transition-all duration-300`}
               aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -78,7 +74,7 @@ const Header = () => {
             
             <Link 
               to="/cart"
-              className={`relative ${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} p-2 transition-colors`}
+              className="relative text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato p-2 transition-colors"
             >
               <FiShoppingCart size={24} />
               {totalItems > 0 && (
@@ -94,14 +90,14 @@ const Header = () => {
             </Link>
             <Link 
               to={user ? "/account" : "/login"}
-              className={`${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} p-2 transition-colors`}
+              className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato p-2 transition-colors"
             >
               <FiUser size={24} />
             </Link>
             
             {/* Mobile Menu Button */}
             <button 
-              className={`md:hidden ${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} p-2 transition-colors`}
+              className="md:hidden text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato p-2 transition-colors"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -120,31 +116,31 @@ const Header = () => {
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <nav className={`flex flex-col py-4 space-y-4 ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+              <nav className="flex flex-col py-4 space-y-4 bg-white dark:bg-gray-900">
                 <Link 
                   to="/" 
-                  className={`${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} transition-colors font-medium`}
+                  className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Home
                 </Link>
                 <Link 
                   to="/shop" 
-                  className={`${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} transition-colors font-medium`}
+                  className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Shop
                 </Link>
                 <Link 
                   to="/about" 
-                  className={`${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} transition-colors font-medium`}
+                  className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   About
                 </Link>
                 <Link 
                   to="/contact" 
-                  className={`${theme === 'dark' ? 'text-white hover:text-primary-lightTomato' : 'text-text-light hover:text-primary-tomato'} transition-colors font-medium`}
+                  className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Contact
@@ -152,14 +148,10 @@ const Header = () => {
 
                 {/* Mobile Theme Toggle */}
                 <div className="flex items-center pt-2">
-                  <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'} mr-2`}>Theme:</span>
+                  <span className="text-gray-600 dark:text-gray-300 mr-2">Theme:</span>
                   <motion.button
                     onClick={handleToggleTheme}
-                    className={`rounded-full p-2 ${isAnimating ? 'theme-switch' : ''} ${
-                      theme === 'dark' 
-                        ? 'bg-gray-800 text-yellow-300 hover:bg-gray-700' 
-                        : 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'
-                    } transition-all duration-300`}
+                    className={`rounded-full p-2 ${isAnimating ? 'theme-switch' : ''} bg-indigo-100 text-indigo-800 hover:bg-indigo-200 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700 transition-all duration-300`}
                     aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

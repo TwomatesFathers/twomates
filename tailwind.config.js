@@ -1,8 +1,63 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  safelist: [
+    // Primary colors
+    'bg-primary-tomato',
+    'bg-primary-darkTomato',
+    'bg-primary-lightTomato',
+    'text-primary-tomato',
+    'text-primary-darkTomato',
+    'text-primary-lightTomato',
+    'hover:bg-primary-tomato',
+    'hover:bg-primary-darkTomato',
+    'hover:bg-primary-lightTomato',
+    'hover:text-primary-tomato',
+    'hover:text-primary-darkTomato',
+    'hover:text-primary-lightTomato',
+    'dark:text-primary-tomato',
+    'dark:text-primary-lightTomato',
+    'dark:hover:text-primary-tomato',
+    'dark:hover:text-primary-lightTomato',
+    
+    // Secondary colors
+    'bg-secondary-green',
+    'bg-secondary-darkGreen',
+    'bg-secondary-lightGreen',
+    'text-secondary-green',
+    'text-secondary-darkGreen',
+    'text-secondary-lightGreen',
+    'hover:bg-secondary-green',
+    'hover:bg-secondary-darkGreen',
+    'hover:bg-secondary-lightGreen',
+    'hover:text-secondary-green',
+    'hover:text-secondary-darkGreen',
+    'hover:text-secondary-lightGreen',
+    'dark:text-secondary-green',
+    'dark:text-secondary-lightGreen',
+    'dark:hover:text-secondary-green',
+    'dark:hover:text-secondary-lightGreen',
+    
+    // Background colors
+    'bg-background-light',
+    'bg-background-dark',
+    'dark:bg-background-dark',
+    
+    // Text colors
+    'text-text-light',
+    'text-text-dark',
+    'dark:text-text-dark',
+    
+    // Card colors
+    'bg-card-light',
+    'bg-card-dark',
+    'text-card-light',
+    'text-card-dark',
+    'dark:bg-card-dark',
+    'dark:text-card-light',
   ],
   darkMode: 'class',
   theme: {

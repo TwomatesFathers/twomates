@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { FiMail, FiLock, FiAlertCircle, FiFacebook, FiGithub } from 'react-icons/fi';
+import { FiMail, FiLock, FiAlertCircle, FiFacebook } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 
 const LoginPage = () => {
@@ -60,7 +60,7 @@ const LoginPage = () => {
         className="card p-8"
       >
         <div className="text-center mb-8">
-          <h1 className={`text-3xl font-bold font-display mb-2 ${theme === 'dark' ? 'text-white' : 'text-text'}`}>Welcome Back</h1>
+          <h1 className={`text-3xl font-bold font-display mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Welcome Back</h1>
           <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Sign in to your Twomates account</p>
         </div>
 
@@ -88,10 +88,10 @@ const LoginPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className={`block w-full pl-10 py-3 pr-3 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tomato ${
+                className={`block w-full pl-10 py-3 pr-3 rounded-md focus:outline-none focus:ring-2 ${
                   theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400' 
-                    : 'border-gray-300 text-gray-900 placeholder:text-gray-500'
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:ring-primary-lightTomato' 
+                    : 'border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-primary-tomato'
                 }`}
                 placeholder="Enter your email"
               />
@@ -110,10 +110,10 @@ const LoginPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className={`block w-full pl-10 py-3 pr-3 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-tomato ${
+                className={`block w-full pl-10 py-3 pr-3 rounded-md focus:outline-none focus:ring-2 ${
                   theme === 'dark' 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400' 
-                    : 'border-gray-300 text-gray-900 placeholder:text-gray-500'
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:ring-primary-lightTomato' 
+                    : 'border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-primary-tomato'
                 }`}
                 placeholder="Enter your password"
               />
@@ -128,13 +128,9 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 px-4 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-primary-tomato focus:ring-offset-2 ${
-              isLoading 
-                ? 'bg-primary-tomato/70 cursor-not-allowed' 
-                : 'bg-primary-tomato hover:bg-primary-darkTomato'
-            } text-white transition-colors`}
+            className={`w-full primary-btn btn py-3 rounded-md font-medium ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
 
           <div className={`my-6 flex items-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>

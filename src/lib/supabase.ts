@@ -27,6 +27,13 @@ export interface User {
   created_at?: string;
   full_name?: string;
   avatar_url?: string;
+  user_metadata?: {
+    full_name?: string;
+    avatar_url?: string;
+    name?: string;
+    picture?: string;
+    email?: string;
+  };
 }
 
 export interface CartItem {

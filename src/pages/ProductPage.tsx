@@ -112,7 +112,7 @@ const ProductPage = () => {
       <div className="mb-8">
         <button
           onClick={() => navigate(-1)}
-          className={`flex items-center ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}
+          className={`flex items-center px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 ${theme === 'dark' ? 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}
         >
           <FiArrowLeft className="mr-2" />
           Back
