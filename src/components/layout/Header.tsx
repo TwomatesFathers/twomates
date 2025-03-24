@@ -13,10 +13,13 @@ const Header = () => {
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [rotationState, setRotationState] = useState(0);
 
   const handleToggleTheme = () => {
     toggleTheme();
     setIsAnimating(true);
+    // Update rotation by adding 360 degrees each time
+    setRotationState(prev => prev + 360);
   };
 
   useEffect(() => {
@@ -65,7 +68,7 @@ const Header = () => {
             >
               <motion.div
                 initial={{ rotate: 0 }}
-                animate={{ rotate: isAnimating ? 360 : 0 }}
+                animate={{ rotate: rotationState }}
                 transition={{ duration: 0.5 }}
               >
                 {theme === 'light' ? <FiMoon size={20} /> : <FiSun size={20} />}
@@ -149,25 +152,23 @@ const Header = () => {
                 {/* Mobile Theme Toggle */}
                 <div className="flex items-center pt-2">
                   <span className="text-gray-600 dark:text-gray-300 mr-2">Theme:</span>
-                  <motion.button
+                  <button
                     onClick={handleToggleTheme}
-                    className={`rounded-full p-2 ${isAnimating ? 'theme-switch' : ''} bg-indigo-100 text-indigo-800 hover:bg-indigo-200 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700 transition-all duration-300`}
+                    className={`rounded-full p-2 ${isAnimating ? 'theme-switch' : ''} bg-indigo-100 text-indigo-800 hover:bg-indigo-200 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700 transition-all duration-300 flex items-center`}
                     aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                   >
                     <motion.div
                       initial={{ rotate: 0 }}
-                      animate={{ rotate: isAnimating ? 360 : 0 }}
+                      animate={{ rotate: rotationState }}
                       transition={{ duration: 0.5 }}
+                      className="flex items-center justify-center"
                     >
-                      {theme === 'light' ? (
-                        <span className="flex items-center"><FiMoon size={16} /><span className="ml-2">Dark</span></span>
-                      ) : (
-                        <span className="flex items-center"><FiSun size={16} /><span className="ml-2">Light</span></span>
-                      )}
+                      {theme === 'light' ? <FiMoon size={16} /> : <FiSun size={16} />}
                     </motion.div>
-                  </motion.button>
+                    <span className="ml-2">
+                      {theme === 'light' ? 'Dark' : 'Light'}
+                    </span>
+                  </button>
                 </div>
               </nav>
             </motion.div>
