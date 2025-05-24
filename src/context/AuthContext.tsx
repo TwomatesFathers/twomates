@@ -125,9 +125,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const currentPath = window.location.pathname + window.location.search;
     sessionStorage.setItem('redirectAfterAuth', currentPath);
     
-    // Include current path in redirect URL if not already specified
-    const baseUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
-    const callbackUrl = `${baseUrl}${currentPath !== '/' ? currentPath : ''}`;
+    // Use simple base URL for now to debug the user agent issue
+    const callbackUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -144,9 +143,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const currentPath = window.location.pathname + window.location.search;
     sessionStorage.setItem('redirectAfterAuth', currentPath);
     
-    // Include current path in redirect URL if not already specified
-    const baseUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
-    const callbackUrl = `${baseUrl}${currentPath !== '/' ? currentPath : ''}`;
+    // Use simple base URL for now to debug the user agent issue
+    const callbackUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
