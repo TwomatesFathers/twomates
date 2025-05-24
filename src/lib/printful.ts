@@ -177,57 +177,121 @@ export async function syncPrintfulProducts() {
     // Get all products from Printful
     const printfulProducts = await printful.getProducts();
     
-    // For each Printful product, get detailed information including variants
+    // Process each Printful product
     for (const product of printfulProducts) {
       const detailedProduct = await printful.getProduct(product.id);
       console.log(detailedProduct);
       
-      // For each variant, create or update a product in Supabase
+      // Create a base product first
+      const baseProductData = {
+        name: detailedProduct.name,
+        description: detailedProduct.name,
+        price: parseFloat(detailedProduct.variants[0]?.retail_price || '0'),
+        image_url: detailedProduct.variants[0]?.product.image || '',
+        in_stock: true,
+        featured: false, // Set default value
+        category: 'printful', // Set default category
+        printful_product_id: detailedProduct.id.toString(),
+        is_base_product: true,
+        variant_name: 'Default',
+      };
+      
+      // Check if base product already exists
+      let baseProductId: number;
+      const { data: existingBaseProduct, error: baseQueryError } = await supabase
+        .from('products')
+        .select('id')
+        .eq('printful_product_id', detailedProduct.id.toString())
+        .eq('is_base_product', true)
+        .single();
+      
+      if (baseQueryError && baseQueryError.code !== 'PGRST116') { // PGRST116 means no rows returned
+        console.error('Error querying base product:', baseQueryError);
+        continue;
+      }
+      
+      if (existingBaseProduct) {
+        // Update existing base product
+        baseProductId = existingBaseProduct.id;
+        const { error: updateError } = await supabase
+          .from('products')
+          .update(baseProductData)
+          .eq('id', baseProductId);
+        
+        if (updateError) {
+          console.error('Error updating base product:', updateError);
+          continue;
+        }
+      } else {
+        // Insert new base product
+        const { data: insertedBaseProduct, error: insertError } = await supabase
+          .from('products')
+          .insert(baseProductData)
+          .select('id')
+          .single();
+        
+        if (insertError || !insertedBaseProduct) {
+          console.error('Error inserting base product:', insertError);
+          continue;
+        }
+        
+        baseProductId = insertedBaseProduct.id;
+      }
+      
+      // Now process all variants and link them to the base product
       for (const variant of detailedProduct.variants) {
-        // Prepare data for Supabase
-        const productData = {
+        // Extract size from variant name if possible
+        const variantNameParts = variant.name.split(' - ');
+        const variantName = variantNameParts.length > 1 ? variantNameParts[1] : variant.name;
+        
+        // Prepare variant data
+        const variantData = {
           name: variant.name,
           description: detailedProduct.name,
           price: parseFloat(variant.retail_price),
           image_url: variant.product.image,
           in_stock: variant.synced,
-          featured: false, // Set default value
-          category: 'printful', // Set default category
-          printful_product_id: detailedProduct.id,
-          printful_variant_id: variant.id,
+          featured: false,
+          category: baseProductData.category,
+          printful_product_id: detailedProduct.id.toString(),
+          printful_variant_id: variant.id.toString(),
           sku: variant.sku,
-          external_id: variant.external_id
+          external_id: variant.external_id,
+          base_product_id: baseProductId,
+          variant_name: variantName,
+          is_base_product: false,
         };
         
-        // Check if product already exists in Supabase by printful_variant_id
-        const { data: existingProducts, error: queryError } = await supabase
+        // Check if variant already exists
+        const { data: existingVariant, error: variantQueryError } = await supabase
           .from('products')
           .select('*')
-          .eq('printful_variant_id', variant.id)
+          .eq('printful_variant_id', variant.id.toString())
           .single();
         
-        if (queryError && queryError.code !== 'PGRST116') { // PGRST116 means no rows returned
-          console.error('Error querying products:', queryError);
+        if (variantQueryError && variantQueryError.code !== 'PGRST116') {
+          console.error('Error querying variant:', variantQueryError);
           continue;
         }
         
-        // If product exists, update it, otherwise insert new product
-        if (existingProducts) {
+        if (existingVariant) {
+          // Update existing variant
           const { error: updateError } = await supabase
             .from('products')
-            .update(productData)
-            .eq('printful_variant_id', variant.id);
+            .update(variantData)
+            .eq('printful_variant_id', variant.id.toString());
           
           if (updateError) {
-            console.error('Error updating product:', updateError);
+            console.error('Error updating variant:', updateError);
           }
         } else {
+          // Insert new variant
           const { error: insertError } = await supabase
             .from('products')
-            .insert(productData);
+            .insert(variantData);
           
           if (insertError) {
-            console.error('Error inserting product:', insertError);
+            console.error('Error inserting variant:', insertError);
           }
         }
       }
@@ -236,7 +300,7 @@ export async function syncPrintfulProducts() {
     console.log('Printful product sync completed');
     return true;
   } catch (error) {
-    console.error('Error syncing Printful products:', error);
+    console.log('Error syncing Printful products:', error);
     return false;
   }
 }

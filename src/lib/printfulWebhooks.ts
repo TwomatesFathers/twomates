@@ -51,7 +51,7 @@ async function handlePackageShipped(data: any) {
   const { order } = data;
   
   // Find the order in our database using Printful's external_id
-  const { data: orderData, error: orderError } = await supabase
+  const { data: _, error: orderError } = await supabase
     .from('orders')
     .select('*')
     .eq('id', order.external_id)
@@ -82,7 +82,7 @@ async function handleOrderFailed(data: any) {
   const { order, reason } = data;
   
   // Find the order in our database using Printful's external_id
-  const { data: orderData, error: orderError } = await supabase
+  const { data: _, error: orderError } = await supabase
     .from('orders')
     .select('*')
     .eq('id', order.external_id)
@@ -112,7 +112,7 @@ async function handleOrderCreated(data: any) {
   const { order } = data;
   
   // Find the order in our database using Printful's external_id
-  const { data: orderData, error: orderError } = await supabase
+  const { data: _, error: orderError } = await supabase
     .from('orders')
     .select('*')
     .eq('id', order.external_id)
@@ -142,7 +142,7 @@ async function handleStockUpdated(data: any) {
   const { sync_variant_id, quantity } = data;
   
   // Find the product in our database using Printful's sync_variant_id
-  const { data: productData, error: productError } = await supabase
+  const { data: _, error: productError } = await supabase
     .from('products')
     .select('*')
     .eq('printful_variant_id', sync_variant_id)

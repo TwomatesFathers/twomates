@@ -53,7 +53,44 @@ const ShopPage = () => {
         
         if (error) throw error;
         
-        setProducts(data || []);
+        // Group variants by printful_product_id and show only one product per group
+        const productGroups = new Map();
+        
+        (data || []).forEach(product => {
+          const groupKey = product.printful_product_id || `standalone_${product.id}`;
+          
+          if (!productGroups.has(groupKey)) {
+            // Use this product as the representative for the group
+            const groupProduct = {
+              ...product,
+              // Collect all available sizes for this product group
+              available_sizes: [product.size].filter(Boolean)
+            };
+            productGroups.set(groupKey, groupProduct);
+          } else {
+            // Add this variant's size to the existing group
+            const existingGroup = productGroups.get(groupKey);
+            if (product.size && !existingGroup.available_sizes.includes(product.size)) {
+              existingGroup.available_sizes.push(product.size);
+            }
+            
+            // Use the variant with the lowest price as the representative
+            if (product.price < existingGroup.price) {
+              productGroups.set(groupKey, {
+                ...product,
+                available_sizes: existingGroup.available_sizes
+              });
+            }
+          }
+        });
+        
+        // Convert map to array and sort available_sizes
+        const groupedProducts = Array.from(productGroups.values()).map(product => ({
+          ...product,
+          available_sizes: product.available_sizes.sort()
+        }));
+        
+        setProducts(groupedProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
         // Use mock products if there's an error
@@ -274,79 +311,159 @@ const ShopPage = () => {
   );
 };
 
-// Mock products for backup
+// Mock products for backup - realistic products that might exist in Printful
 const mockProducts: Product[] = [
   {
     id: 1,
     created_at: new Date().toISOString(),
-    name: 'Twomates Classic Tee',
-    description: 'Our flagship t-shirt with the iconic Twomates logo.',
-    price: 29.99,
-    image_url: 'https://via.placeholder.com/400x500?text=Twomates+Tee',
-    category: 'tshirts',
+    name: 'twomates',
+    description: 'Classic twomates design on premium fabric',
+    price: 24.99,
+    image_url: 'https://files.cdn.printful.com/files/abc/abc123_preview.png',
+    category: 'printful',
     featured: true,
     in_stock: true,
-    sizes: ['S', 'M', 'L', 'XL'],
+    printful_product_id: '285441734',
+    printful_variant_id: '11537425430',
+    sku: 'TWT-3001C-S-WHT',
+    external_id: 'twomates-tee-s-white',
+    size: 'S',
+    color: 'White',
+    availability_status: 'active',
+    available_sizes: ['S', 'M', 'L', 'XL', '2XL'],
   },
   {
     id: 2,
     created_at: new Date().toISOString(),
-    name: 'Tomato Mates Hoodie',
-    description: 'Stay cozy with our premium hoodie featuring the tomato mascots.',
-    price: 59.99,
-    image_url: 'https://via.placeholder.com/400x500?text=Twomates+Hoodie',
-    category: 'hoodies',
+    name: 'twomates',
+    description: 'Premium hoodie with iconic twomates branding',
+    price: 39.99,
+    image_url: 'https://files.cdn.printful.com/files/def/def456_preview.png',
+    category: 'printful',
     featured: true,
     in_stock: true,
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    printful_product_id: '285441735',
+    printful_variant_id: '11537425431',
+    sku: 'TWT-18500-M-BLK',
+    external_id: 'twomates-hoodie-m-black',
+    size: 'M',
+    color: 'Black',
+    availability_status: 'active',
+    available_sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'],
   },
   {
     id: 3,
     created_at: new Date().toISOString(),
-    name: 'Twomates Cap',
-    description: 'A stylish cap with embroidered tomato mascots.',
-    price: 24.99,
-    image_url: 'https://via.placeholder.com/400x500?text=Twomates+Cap',
-    category: 'accessories',
-    featured: true,
+    name: 'twomates',
+    description: 'Vintage-style twomates design on soft cotton blend',
+    price: 27.99,
+    image_url: 'https://files.cdn.printful.com/files/ghi/ghi789_preview.png',
+    category: 'printful',
+    featured: false,
     in_stock: true,
-    sizes: ['One Size'],
+    printful_product_id: '285441736',
+    printful_variant_id: '11537425432',
+    sku: 'TWT-64000-L-GRY',
+    external_id: 'twomates-vintage-l-grey',
+    size: 'L',
+    color: 'Sport Grey',
+    availability_status: 'active',
+    available_sizes: ['S', 'M', 'L', 'XL'],
   },
   {
     id: 4,
     created_at: new Date().toISOString(),
-    name: 'Tomato Pals Socks',
-    description: 'Colorful socks with our cute tomato characters.',
-    price: 12.99,
-    image_url: 'https://via.placeholder.com/400x500?text=Twomates+Socks',
-    category: 'accessories',
-    featured: true,
+    name: 'twomates',
+    description: 'Cozy sweatshirt perfect for casual wear',
+    price: 34.99,
+    image_url: 'https://files.cdn.printful.com/files/jkl/jkl012_preview.png',
+    category: 'printful',
+    featured: false,
     in_stock: true,
-    sizes: ['S', 'M', 'L'],
+    printful_product_id: '285441737',
+    printful_variant_id: '11537425433',
+    sku: 'TWT-18000-XL-NVY',
+    external_id: 'twomates-sweatshirt-xl-navy',
+    size: 'XL',
+    color: 'Navy',
+    availability_status: 'active',
+    available_sizes: ['M', 'L', 'XL', '2XL'],
   },
   {
     id: 5,
     created_at: new Date().toISOString(),
-    name: 'Twomates Graphic Tee',
-    description: 'Bold graphic tee with our signature tomato design.',
-    price: 34.99,
-    image_url: 'https://via.placeholder.com/400x500?text=Graphic+Tee',
-    category: 'tshirts',
-    featured: false,
+    name: 'twomates',
+    description: 'Long sleeve tee with minimalist twomates logo',
+    price: 29.99,
+    image_url: 'https://files.cdn.printful.com/files/mno/mno345_preview.png',
+    category: 'printful',
+    featured: true,
     in_stock: true,
-    sizes: ['S', 'M', 'L', 'XL'],
+    printful_product_id: '285441738',
+    printful_variant_id: '11537425434',
+    sku: 'TWT-5400-M-BLK',
+    external_id: 'twomates-longsleeve-m-black',
+    size: 'M',
+    color: 'Black',
+    availability_status: 'active',
+    available_sizes: ['S', 'M', 'L', 'XL'],
   },
   {
     id: 6,
     created_at: new Date().toISOString(),
-    name: 'Vintage Tomato Sweatshirt',
-    description: 'Retro-styled sweatshirt for a classic casual look.',
-    price: 49.99,
-    image_url: 'https://via.placeholder.com/400x500?text=Vintage+Sweatshirt',
-    category: 'hoodies',
+    name: 'twomates',
+    description: 'Premium tank top with bold twomates graphics',
+    price: 22.99,
+    image_url: 'https://files.cdn.printful.com/files/pqr/pqr678_preview.png',
+    category: 'printful',
     featured: false,
     in_stock: true,
-    sizes: ['S', 'M', 'L'],
+    printful_product_id: '285441739',
+    printful_variant_id: '11537425435',
+    sku: 'TWT-2408-L-WHT',
+    external_id: 'twomates-tank-l-white',
+    size: 'L',
+    color: 'White',
+    availability_status: 'active',
+    available_sizes: ['S', 'M', 'L', 'XL'],
+  },
+  {
+    id: 7,
+    created_at: new Date().toISOString(),
+    name: 'twomates',
+    description: 'Zip-up hoodie with embroidered twomates logo',
+    price: 44.99,
+    image_url: 'https://files.cdn.printful.com/files/stu/stu901_preview.png',
+    category: 'printful',
+    featured: true,
+    in_stock: true,
+    printful_product_id: '285441740',
+    printful_variant_id: '11537425436',
+    sku: 'TWT-18600-M-CHR',
+    external_id: 'twomates-zip-hoodie-m-charcoal',
+    size: 'M',
+    color: 'Charcoal',
+    availability_status: 'active',
+    available_sizes: ['S', 'M', 'L', 'XL', '2XL'],
+  },
+  {
+    id: 8,
+    created_at: new Date().toISOString(),
+    name: 'twomates',
+    description: 'Organic cotton tee with sustainable twomates print',
+    price: 26.99,
+    image_url: 'https://files.cdn.printful.com/files/vwx/vwx234_preview.png',
+    category: 'printful',
+    featured: false,
+    in_stock: true,
+    printful_product_id: '285441741',
+    printful_variant_id: '11537425437',
+    sku: 'TWT-4001-S-GRN',
+    external_id: 'twomates-organic-s-green',
+    size: 'S',
+    color: 'Forest Green',
+    availability_status: 'active',
+    available_sizes: ['S', 'M', 'L', 'XL'],
   },
 ];
 

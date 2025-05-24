@@ -13,6 +13,8 @@ const ProductPage = () => {
   const { theme } = useTheme();
   
   const [product, setProduct] = useState<Product | null>(null);
+  const [variants, setVariants] = useState<Product[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('');
@@ -24,21 +26,33 @@ const ProductPage = () => {
       try {
         if (!id) throw new Error('Product ID is required');
         
-        const { data, error } = await supabase
+        // First, get the specific product/variant that was clicked
+        const { data: mainProduct, error: mainError } = await supabase
           .from('products')
           .select('*')
           .eq('id', id)
           .single();
           
-        if (error) throw error;
-        if (!data) throw new Error('Product not found');
+        if (mainError) throw mainError;
+        if (!mainProduct) throw new Error('Product not found');
         
-        setProduct(data);
+        setProduct(mainProduct);
         
-        // Set the first size as default
-        if (data.sizes && data.sizes.length > 0) {
-          setSelectedSize(data.sizes[0]);
-        }
+        // Then fetch all variants for this product group
+        const { data: allVariants, error: variantsError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('printful_product_id', mainProduct.printful_product_id)
+          .order('size');
+          
+        if (variantsError) throw variantsError;
+        
+        const variantsList = allVariants || [];
+        setVariants(variantsList);
+        
+        // Set the main product as the initially selected variant
+        setSelectedVariant(mainProduct);
+        setSelectedSize(mainProduct.size || '');
       } catch (error: any) {
         console.error('Error fetching product:', error);
         setError(error.message);
@@ -50,10 +64,20 @@ const ProductPage = () => {
     fetchProduct();
   }, [id]);
   
+  const handleSizeSelect = (size: string) => {
+    // Find the variant with the selected size
+    const variant = variants.find(v => v.size === size);
+    if (variant) {
+      setSelectedVariant(variant);
+      setSelectedSize(size);
+    }
+  };
+  
   const handleAddToCart = () => {
-    if (!product || !selectedSize) return;
+    if (!selectedVariant || !selectedSize) return;
     
-    addToCart(product.id, quantity, selectedSize);
+    // Add the specific variant to cart
+    addToCart(selectedVariant.id, quantity, selectedSize);
     
     // Show success message or redirect to cart
     navigate('/cart');
@@ -106,6 +130,9 @@ const ProductPage = () => {
     );
   }
   
+  // Use selected variant for display, fallback to main product
+  const displayProduct = selectedVariant || product;
+  
   return (
     <div className="container-custom py-12">
       {/* Back button */}
@@ -129,8 +156,8 @@ const ProductPage = () => {
             className={`rounded-lg overflow-hidden ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} shadow-lg`}
           >
             <img
-              src={product.image_url}
-              alt={product.name}
+              src={displayProduct.image_url}
+              alt={displayProduct.name}
               className="w-full h-auto object-cover"
             />
           </motion.div>
@@ -142,33 +169,38 @@ const ProductPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{product.name}</h1>
+          <h1 className={`text-3xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{displayProduct.name}</h1>
           <div className="mb-4">
-            <span className="text-2xl font-semibold text-primary-tomato">{formatPrice(product.price)}</span>
+            <span className="text-2xl font-semibold text-primary-tomato">{formatPrice(displayProduct.price)}</span>
+            {selectedVariant && selectedSize && (
+              <div className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                Size: {selectedSize} • Color: {selectedVariant.color}
+              </div>
+            )}
           </div>
           
           <div className={`mb-6 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-            <p>{product.description}</p>
+            <p>{displayProduct.description}</p>
           </div>
           
           {/* Size Selection */}
-          {product.sizes && product.sizes.length > 0 && (
+          {variants.length > 0 && (
             <div className="mb-6">
               <h3 className={`font-semibold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Size</h3>
               <div className="flex flex-wrap gap-3">
-                {product.sizes.map(size => (
+                {variants.map((variant) => (
                   <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
+                    key={variant.id}
+                    onClick={() => handleSizeSelect(variant.size)}
                     className={`px-4 py-2 rounded-md border ${
-                      selectedSize === size
+                      selectedSize === variant.size
                         ? 'border-primary-tomato bg-primary-tomato text-white'
                         : theme === 'dark'
                           ? 'border-gray-600 text-gray-300 hover:border-gray-400 hover:bg-gray-700'
                           : 'border-gray-300 text-gray-700 hover:border-gray-400'
                     } transition-colors`}
                   >
-                    {size}
+                    {variant.size}
                   </button>
                 ))}
               </div>
@@ -224,16 +256,16 @@ const ProductPage = () => {
           </button>
           
           {/* Additional Info */}
-          <div className={`mt-8 pt-8 border-t ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
-            <div className="grid grid-cols-2 gap-4">
-              <div className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
-                <h4 className={`font-semibold mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Shipping</h4>
-                <p className="text-sm">Free shipping on orders over $50</p>
-              </div>
-              <div className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
-                <h4 className={`font-semibold mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>Returns</h4>
-                <p className="text-sm">Easy 30-day returns</p>
-              </div>
+          <div className="mt-8 space-y-4">
+            <div>
+              <h3 className={`font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Category</h3>
+              <p className={`capitalize ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{displayProduct.category}</p>
+            </div>
+            <div>
+              <h3 className={`font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Availability</h3>
+              <p className={`${displayProduct.in_stock ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                {displayProduct.in_stock ? 'In Stock' : 'Out of Stock'}
+              </p>
             </div>
           </div>
         </motion.div>

@@ -2,35 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CSS Variables for theming */
 :root {
-  --primary-color: #ff7059;
-  --primary-hover: #ff3a27;
-  --secondary-color: #007e40;
+  --primary-color: #FF6347;
+  --primary-hover: #E5352B;
+  --secondary-color: #4CAF50;
   --secondary-hover: #3D8C40;
-  --background-light: #FFFFFF;
-  --text-light: #333333;
-  --card-light: #FFFFFF;
-  --background-dark: #121212;
-  --text-dark: #F3F4F6;
-  --card-dark: #1F2937;
+  --background: #FFFAF0;
+  --card: #FFFFFF;
+  --text: #333333;
+  --accent: #7BC67F;
 }
 
-/* Dark mode styles */
 .dark {
-  --primary-color: #ff7059;
-  --primary-hover: #ff3a27;
-  --secondary-color: #007e40;
-  --secondary-hover: #3D8C40;
-  --background: var(--background-dark);
-  --text: var(--text-dark);
-  --card: var(--card-dark);
+  --primary-color: #FF8C7C;
+  --primary-hover: #FF6347;
+  --secondary-color: #7BC67F;
+  --secondary-hover: #4CAF50;
+  --background: #121212;
+  --card: #1F2937;
+  --text: #F3F4F6;
+  --accent: #FF6347;
 }
 
-/* Light mode is the default */
-:root {
-  --background: var(--background-light);
-  --text: var(--text-light);
-  --card: var(--card-light);
+/* Custom font imports */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Global styles */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+/* Theme transition animation */
+.theme-switch {
+  animation: theme-switch-animation 0.5s ease-in-out;
+}
+
+@keyframes theme-switch-animation {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
 }
 
 /* Logo styles */
@@ -47,7 +85,6 @@ body {
   background-color: var(--background);
   color: var(--text);
   min-height: 100vh;
-  font-family: 'Inter', sans-serif;
 }
 
 @layer components {
@@ -115,6 +152,28 @@ body {
     }
   }
 
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
   /* Custom button classes */
   .view-all-products-btn {
     background-color: white;
@@ -146,7 +205,8 @@ body {
   }
 
   .our-story-btn:hover {
-    background-color: #f3f4f6; /* light gray hover */
+    background-color: var(--primary-color);
+    color: white;
   }
 
   .dark .our-story-btn {

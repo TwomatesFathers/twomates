@@ -10,20 +10,29 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // Types for database tables
 export interface Product {
   id: number;
-  name: string;
+  name: string; // Clean base product name (e.g., "twomates")
   description: string;
-  price: number;
+  price: number; // Variant-specific price
   category: string;
   image_url: string;
   in_stock: boolean;
   featured: boolean;
-  sizes?: string[];
   created_at?: string;
+  
   // Printful specific fields
-  printful_product_id?: string;
-  printful_variant_id?: string;
-  sku?: string;
-  external_id?: string;
+  printful_product_id: string; // Groups variants together (from sync_product.id)
+  printful_variant_id: string; // Unique variant identifier (from sync_variant.id)
+  sku: string;
+  external_id: string;
+  
+  // Variant-specific fields
+  size: string; // e.g., "S", "M", "L", "XL"
+  color: string; // e.g., "Black", "White"
+  availability_status: string; // e.g., "active", "discontinued"
+  
+  // UI helper fields (computed)
+  base_product_name?: string; // Clean name without size (for grouping)
+  available_sizes?: string[]; // All sizes for this product group (computed in queries)
 }
 
 export interface User {
