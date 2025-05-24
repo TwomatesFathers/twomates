@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --primary-color: #FF6347;
-  --primary-hover: #E5352B;
-  --secondary-color: #4CAF50;
+  --primary-color: #ff7059;
+  --primary-hover: #ff3a27;
+  --secondary-color: #007e40;
   --secondary-hover: #3D8C40;
   --background-light: #FFFFFF;
   --text-light: #333333;
@@ -17,9 +17,9 @@
 
 /* Dark mode styles */
 .dark {
-  --primary-color: #FF6347;
-  --primary-hover: #E5352B;
-  --secondary-color: #4CAF50;
+  --primary-color: #ff7059;
+  --primary-hover: #ff3a27;
+  --secondary-color: #007e40;
   --secondary-hover: #3D8C40;
   --background: var(--background-dark);
   --text: var(--text-dark);
