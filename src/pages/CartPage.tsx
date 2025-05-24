@@ -8,6 +8,7 @@ import { useTheme } from '../context/ThemeContext';
 const CartPage = () => {
   const { cart, loading, totalItems, totalPrice, updateCartItem, removeFromCart } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [updatingItems, setUpdatingItems] = useState<string[]>([]);
   const { theme } = useTheme();
 
   // Format price with currency
@@ -16,6 +17,27 @@ const CartPage = () => {
       style: 'currency',
       currency: 'USD',
     }).format(price);
+  };
+
+  const handleQuantityUpdate = async (itemId: string, newQuantity: number) => {
+    setUpdatingItems(prev => [...prev, itemId]);
+    try {
+      await updateCartItem(itemId, newQuantity);
+    } catch (error) {
+      console.error('Failed to update cart item:', error);
+    } finally {
+      setUpdatingItems(prev => prev.filter(id => id !== itemId));
+    }
+  };
+
+  const handleRemoveItem = async (itemId: string) => {
+    setUpdatingItems(prev => [...prev, itemId]);
+    try {
+      await removeFromCart(itemId);
+    } catch (error) {
+      console.error('Failed to remove cart item:', error);
+      setUpdatingItems(prev => prev.filter(id => id !== itemId));
+    }
   };
 
   if (loading) {
@@ -87,81 +109,116 @@ const CartPage = () => {
               </div>
 
               <div className={`divide-y ${theme === 'dark' ? 'divide-gray-700' : 'divide-gray-200'}`}>
-                {cart.map((item) => (
-                  <motion.div 
-                    key={item.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="p-6 flex flex-col sm:flex-row items-start sm:items-center"
-                  >
-                    {/* Product Image */}
-                    <div className="w-full sm:w-20 h-20 mb-4 sm:mb-0 sm:mr-6">
-                      <img
-                        src={item.product?.image_url}
-                        alt={item.product?.name}
-                        className="w-20 h-20 object-cover rounded-md"
-                      />
-                    </div>
-
-                    {/* Product Details */}
-                    <div className="flex-grow">
-                      <Link 
-                        to={`/product/${item.product_id}`} 
-                        className={`font-medium hover:text-primary-tomato transition-colors ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
-                      >
-                        {item.product?.name}
-                      </Link>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                        Size: {item.size}
-                      </p>
-                      <p className="font-semibold text-primary-tomato">
-                        {formatPrice((item.product?.price || 0) * item.quantity)}
-                      </p>
-                    </div>
-
-                    {/* Quantity Controls */}
-                    <div className="flex items-center mt-4 sm:mt-0">
-                      <div className="flex items-center mr-4">
+                {cart.map((item) => {
+                  const product = item.product;
+                  const isUpdating = updatingItems.includes(item.id);
+                  
+                  if (!product) {
+                    return (
+                      <div key={item.id} className="p-6 flex items-center">
+                        <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Product information unavailable
+                        </div>
                         <button
-                          onClick={() => updateCartItem(item.id, item.quantity - 1)}
-                          className={`px-2 py-1 border rounded-l-md ${
-                            theme === 'dark' 
-                              ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
-                              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
-                          }`}
+                          onClick={() => handleRemoveItem(item.id)}
+                          className={`ml-auto ${theme === 'dark' ? 'text-red-400 hover:text-red-300' : 'text-red-500 hover:text-red-700'} transition-colors`}
+                          aria-label="Remove item"
                         >
-                          -
-                        </button>
-                        <span className={`w-8 text-center border-y ${
-                          theme === 'dark' 
-                            ? 'border-gray-600 bg-gray-700 text-white' 
-                            : 'border-gray-300 bg-white text-gray-900'
-                        }`}>
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateCartItem(item.id, item.quantity + 1)}
-                          className={`px-2 py-1 border rounded-r-md ${
-                            theme === 'dark' 
-                              ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
-                              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          +
+                          <FiTrash2 size={18} />
                         </button>
                       </div>
+                    );
+                  }
 
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className={`${theme === 'dark' ? 'text-red-400 hover:text-red-300' : 'text-red-500 hover:text-red-700'} transition-colors`}
-                        aria-label="Remove item"
-                      >
-                        <FiTrash2 size={18} />
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
+                  return (
+                    <motion.div 
+                      key={item.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className={`p-6 flex flex-col sm:flex-row items-start sm:items-center ${isUpdating ? 'opacity-50' : ''}`}
+                    >
+                      {/* Product Image */}
+                      <div className="w-full sm:w-20 h-20 mb-4 sm:mb-0 sm:mr-6">
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-20 h-20 object-cover rounded-md"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/placeholder-image.jpg'; // Fallback image
+                          }}
+                        />
+                      </div>
+
+                      {/* Product Details */}
+                      <div className="flex-grow">
+                        <Link 
+                          to={`/product/${item.product_id}`} 
+                          className={`font-medium hover:text-primary-tomato transition-colors ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
+                        >
+                          {product.name}
+                        </Link>
+                        <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                          <p>Size: {item.size}</p>
+                          {product.color && (
+                            <p>Color: {product.color}</p>
+                          )}
+                          <p className="mt-1">
+                            {formatPrice(product.price)} each
+                          </p>
+                        </div>
+                        <p className="font-semibold text-primary-tomato mt-2">
+                          Total: {formatPrice(product.price * item.quantity)}
+                        </p>
+                      </div>
+
+                      {/* Quantity Controls */}
+                      <div className="flex items-center mt-4 sm:mt-0">
+                        <div className="flex items-center mr-4">
+                          <button
+                            onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
+                            disabled={isUpdating || item.quantity <= 1}
+                            className={`px-2 py-1 border rounded-l-md ${
+                              theme === 'dark' 
+                                ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50' 
+                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50'
+                            } transition-colors disabled:cursor-not-allowed`}
+                          >
+                            -
+                          </button>
+                          <span className={`w-12 text-center border-y ${
+                            theme === 'dark' 
+                              ? 'border-gray-600 bg-gray-700 text-white' 
+                              : 'border-gray-300 bg-white text-gray-900'
+                          }`}>
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
+                            disabled={isUpdating}
+                            className={`px-2 py-1 border rounded-r-md ${
+                              theme === 'dark' 
+                                ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50' 
+                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50'
+                            } transition-colors disabled:cursor-not-allowed`}
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => handleRemoveItem(item.id)}
+                          disabled={isUpdating}
+                          className={`${theme === 'dark' ? 'text-red-400 hover:text-red-300' : 'text-red-500 hover:text-red-700'} transition-colors disabled:opacity-50`}
+                          aria-label="Remove item"
+                        >
+                          <FiTrash2 size={18} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -173,7 +230,7 @@ const CartPage = () => {
 
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between">
-                  <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Subtotal</span>
+                  <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Subtotal ({totalItems} items)</span>
                   <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{formatPrice(totalPrice)}</span>
                 </div>
                 <div className="flex justify-between">
@@ -190,7 +247,10 @@ const CartPage = () => {
                     </span>
                   </div>
                   <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {totalPrice >= 100 ? 'Free shipping on orders over $100' : `$${(100 - totalPrice).toFixed(2)} away from free shipping`}
+                    {totalPrice >= 100 
+                      ? 'Free shipping included' 
+                      : `Add ${formatPrice(100 - totalPrice)} for free shipping`
+                    }
                   </p>
                 </div>
               </div>
@@ -203,9 +263,9 @@ const CartPage = () => {
                     window.location.href = '/checkout';
                   }, 500);
                 }}
-                disabled={isCheckingOut}
+                disabled={isCheckingOut || totalItems === 0}
                 className={`btn btn-primary w-full flex items-center justify-center ${
-                  isCheckingOut ? 'opacity-70 cursor-not-allowed' : ''
+                  isCheckingOut || totalItems === 0 ? 'opacity-70 cursor-not-allowed' : ''
                 }`}
               >
                 {isCheckingOut ? (

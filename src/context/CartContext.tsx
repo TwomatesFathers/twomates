@@ -30,7 +30,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       try {
         const { data, error } = await supabase
           .from('products')
-          .select('*');
+          .select('*')
+          .eq('in_stock', true); // Only fetch in-stock products for cart operations
         
         if (error) {
           throw error;
@@ -52,7 +53,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         // If no user is logged in, check localStorage
         const localCart = localStorage.getItem('twomates_cart');
         if (localCart) {
-          setCart(JSON.parse(localCart));
+          try {
+            const parsedCart = JSON.parse(localCart);
+            // Validate cart items and attach product data
+            const validatedCart = await Promise.all(
+              parsedCart.map(async (item: CartItem) => {
+                const product = products.find(p => p.id === item.product_id);
+                return {
+                  ...item,
+                  product: product || null
+                };
+              })
+            );
+            setCart(validatedCart.filter(item => item.product)); // Only keep items with valid products
+          } catch (error) {
+            console.error('Error parsing local cart:', error);
+            localStorage.removeItem('twomates_cart');
+          }
         }
         setLoading(false);
         return;
@@ -60,9 +77,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       try {
         setLoading(true);
+        // Fetch cart items with product data
         const { data, error } = await supabase
           .from('cart_items')
-          .select('*')
+          .select(`
+            *,
+            product:products(*)
+          `)
           .eq('user_id', user.id);
 
         if (error) {
@@ -77,20 +98,25 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    fetchCart();
-  }, [user]);
+    // Only fetch cart after products are loaded
+    if (products.length > 0 || user) {
+      fetchCart();
+    }
+  }, [user, products]);
 
   // Save cart to localStorage when cart changes (for non-logged in users)
   useEffect(() => {
     if (!user && cart.length > 0) {
-      localStorage.setItem('twomates_cart', JSON.stringify(cart));
+      // Save without product data to avoid circular references
+      const cartToSave = cart.map(({ product, ...item }) => item);
+      localStorage.setItem('twomates_cart', JSON.stringify(cartToSave));
     }
   }, [cart, user]);
 
   // Calculate total items and price
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = cart.reduce((total, item) => {
-    const product = products.find(p => p.id === item.product_id);
+    const product = item.product || products.find(p => p.id === item.product_id);
     return total + (product?.price || 0) * item.quantity;
   }, 0);
 
@@ -102,26 +128,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Product not found');
       }
 
-      // Check if item is already in cart
+      if (!product.in_stock) {
+        throw new Error('Product is out of stock');
+      }
+
+      // Check if item with same product and size is already in cart
       const existingItemIndex = cart.findIndex(
         item => item.product_id === productId && item.size === size
       );
 
       if (existingItemIndex > -1) {
         // Update quantity if item exists
-        const newCart = [...cart];
-        newCart[existingItemIndex].quantity += quantity;
-        
-        if (user) {
-          const { error } = await supabase
-            .from('cart_items')
-            .update({ quantity: newCart[existingItemIndex].quantity })
-            .eq('id', newCart[existingItemIndex].id);
-          
-          if (error) throw error;
-        }
-        
-        setCart(newCart);
+        const newQuantity = cart[existingItemIndex].quantity + quantity;
+        await updateCartItem(cart[existingItemIndex].id, newQuantity);
       } else {
         // Add new item
         const newItem: CartItem = {
@@ -130,21 +149,39 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           product_id: productId,
           quantity,
           size,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          product: product
         };
 
         if (user) {
-          const { error } = await supabase
+          // For logged-in users, save to database
+          const { data, error } = await supabase
             .from('cart_items')
-            .insert(newItem);
+            .insert({
+              id: newItem.id,
+              user_id: newItem.user_id,
+              product_id: newItem.product_id,
+              quantity: newItem.quantity,
+              size: newItem.size,
+              created_at: newItem.created_at
+            })
+            .select(`
+              *,
+              product:products(*)
+            `)
+            .single();
           
           if (error) throw error;
+          
+          setCart([...cart, data]);
+        } else {
+          // For guests, just add to local state
+          setCart([...cart, newItem]);
         }
-        
-        setCart([...cart, newItem]);
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
+      throw error; // Re-throw so components can handle the error
     }
   };
 
@@ -171,6 +208,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setCart(updatedCart);
     } catch (error) {
       console.error('Error updating cart item:', error);
+      throw error;
     }
   };
 
@@ -189,6 +227,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setCart(cart.filter(item => item.id !== itemId));
     } catch (error) {
       console.error('Error removing from cart:', error);
+      throw error;
     }
   };
 
@@ -205,9 +244,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
       
       setCart([]);
-      localStorage.removeItem('twomates_cart');
+      if (!user) {
+        localStorage.removeItem('twomates_cart');
+      }
     } catch (error) {
       console.error('Error clearing cart:', error);
+      throw error;
     }
   };
 

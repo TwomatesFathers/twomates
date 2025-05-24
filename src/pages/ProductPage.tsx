@@ -43,6 +43,7 @@ const ProductPage = () => {
           .from('products')
           .select('*')
           .eq('printful_product_id', mainProduct.printful_product_id)
+          .eq('in_stock', true) // Only show in-stock variants
           .order('size');
           
         if (variantsError) throw variantsError;
@@ -90,6 +91,34 @@ const ProductPage = () => {
   const decrementQuantity = () => {
     setQuantity(prev => (prev > 1 ? prev - 1 : 1));
   };
+
+  // Get unique sizes and sort them properly
+  const getAvailableSizes = () => {
+    const sizes = variants
+      .map(variant => variant.size)
+      .filter(size => size && size.trim() !== '') // Filter out empty/null sizes
+      .filter((size, index, array) => array.indexOf(size) === index); // Remove duplicates
+    
+    // Sort sizes properly (S, M, L, XL, XXL, etc.)
+    const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', 'XXXL', '3XL'];
+    
+    return sizes.sort((a, b) => {
+      const aIndex = sizeOrder.indexOf(a);
+      const bIndex = sizeOrder.indexOf(b);
+      
+      // If both sizes are in our standard order, sort by that
+      if (aIndex !== -1 && bIndex !== -1) {
+        return aIndex - bIndex;
+      }
+      
+      // If only one is in standard order, prioritize it
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      
+      // For non-standard sizes, sort alphabetically
+      return a.localeCompare(b);
+    });
+  };
   
   // Format price with currency
   const formatPrice = (price: number) => {
@@ -132,6 +161,7 @@ const ProductPage = () => {
   
   // Use selected variant for display, fallback to main product
   const displayProduct = selectedVariant || product;
+  const availableSizes = getAvailableSizes();
   
   return (
     <div className="container-custom py-12">
@@ -184,23 +214,23 @@ const ProductPage = () => {
           </div>
           
           {/* Size Selection */}
-          {variants.length > 0 && (
+          {availableSizes.length > 0 && (
             <div className="mb-6">
               <h3 className={`font-semibold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Size</h3>
               <div className="flex flex-wrap gap-3">
-                {variants.map((variant) => (
+                {availableSizes.map((size) => (
                   <button
-                    key={variant.id}
-                    onClick={() => handleSizeSelect(variant.size)}
+                    key={size}
+                    onClick={() => handleSizeSelect(size)}
                     className={`px-4 py-2 rounded-md border ${
-                      selectedSize === variant.size
+                      selectedSize === size
                         ? 'border-primary-tomato bg-primary-tomato text-white'
                         : theme === 'dark'
                           ? 'border-gray-600 text-gray-300 hover:border-gray-400 hover:bg-gray-700'
                           : 'border-gray-300 text-gray-700 hover:border-gray-400'
                     } transition-colors`}
                   >
-                    {variant.size}
+                    {size}
                   </button>
                 ))}
               </div>
@@ -244,15 +274,15 @@ const ProductPage = () => {
           {/* Add to Cart Button */}
           <button
             onClick={handleAddToCart}
-            disabled={!selectedSize}
+            disabled={!selectedSize || !displayProduct.in_stock}
             className={`px-6 py-3 rounded-md flex items-center justify-center w-full ${
-              !selectedSize
+              !selectedSize || !displayProduct.in_stock
                 ? theme === 'dark' ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-gray-400 text-white cursor-not-allowed'
                 : 'bg-primary-tomato hover:bg-primary-darkTomato text-white'
             } transition-colors`}
           >
             <FiShoppingCart className="mr-2" size={20} />
-            Add to Cart
+            {!displayProduct.in_stock ? 'Out of Stock' : 'Add to Cart'}
           </button>
           
           {/* Additional Info */}
@@ -267,6 +297,14 @@ const ProductPage = () => {
                 {displayProduct.in_stock ? 'In Stock' : 'Out of Stock'}
               </p>
             </div>
+            {availableSizes.length > 1 && (
+              <div>
+                <h3 className={`font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Available Sizes</h3>
+                <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {availableSizes.join(', ')}
+                </p>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

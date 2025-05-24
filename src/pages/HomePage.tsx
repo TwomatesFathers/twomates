@@ -85,8 +85,7 @@ const HomePage = () => {
     <div>
       {/* Hero Section */}
       <section
-        className="py-16 md:py-24 bg-gradient-to-r from-primary-lightTomato to-primary-tomato dark:bg-gray-900 text-white"
-        style={{ minHeight: "75vh" }}
+        className="py-16 md:py-12 bg-gradient-to-r from-primary-lightTomato to-primary-tomato dark:bg-gray-900 text-white"
       >
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -107,7 +106,7 @@ const HomePage = () => {
                 </p>
               </motion.div>
             </div>
-            <div className="flex justify-center my-16">
+            <div className="flex justify-center my-8">
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
