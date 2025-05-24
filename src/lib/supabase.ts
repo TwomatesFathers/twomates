@@ -19,6 +19,11 @@ export interface Product {
   featured: boolean;
   sizes?: string[];
   created_at?: string;
+  // Printful specific fields
+  printful_product_id?: string;
+  printful_variant_id?: string;
+  sku?: string;
+  external_id?: string;
 }
 
 export interface User {
@@ -54,6 +59,10 @@ export interface Order {
   created_at?: string;
   items: OrderItem[];
   shipping_address: Address;
+  printful_order_id?: string;
+  tracking_number?: string;
+  tracking_url?: string;
+  failure_reason?: string;
 }
 
 export interface OrderItem {
