@@ -53,11 +53,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
 
       if (existingProfile) {
-        // Profile exists, update it
+        // Profile exists, try to update it with minimal data
         const { error: updateError } = await supabase
           .from('profiles')
           .update({
-            email: authUser.email || '',
             full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
             avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || '',
             updated_at: new Date().toISOString(),
@@ -70,16 +69,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           console.log('User profile updated for:', authUser.id);
         }
       } else {
-        // Profile doesn't exist, create it
+        // Profile doesn't exist, create it with minimal required data
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: authUser.id,
-            email: authUser.email || '',
-            full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
-            avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || '',
+            // Only include fields that definitely exist in the table
             created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
           });
 
         if (insertError) {
