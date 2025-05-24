@@ -1,19 +1,391 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiArrowLeft, FiCheck } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { createOrder, type OrderData } from '../lib/orderService';
+import PayPalButton from '../components/checkout/PayPalButton';
+
+// Shipping step component
+const ShippingStep = ({ 
+  shippingDetails, 
+  onShippingChange, 
+  onSubmit, 
+  isProcessing, 
+  error, 
+  theme, 
+  onNavigateToCart 
+}: {
+  shippingDetails: any;
+  onShippingChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  isProcessing: boolean;
+  error: string | null;
+  theme: string;
+  onNavigateToCart: () => void;
+}) => (
+  <div>
+    <h2 className={`text-2xl font-semibold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Shipping Information</h2>
+    
+    {error && (
+      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+        <p className="text-red-800 text-sm">{error}</p>
+      </div>
+    )}
+    
+    <form onSubmit={onSubmit}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="md:col-span-2">
+          <label htmlFor="fullName" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+            Full Name
+          </label>
+          <input
+            type="text"
+            id="fullName"
+            name="fullName"
+            value={shippingDetails.fullName}
+            onChange={onShippingChange}
+            required
+            className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
+              theme === 'dark'
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'border-gray-300 text-gray-900'
+            }`}
+          />
+        </div>
+        
+        <div className="md:col-span-2">
+          <label htmlFor="email" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={shippingDetails.email}
+            onChange={onShippingChange}
+            required
+            className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
+              theme === 'dark'
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'border-gray-300 text-gray-900'
+            }`}
+          />
+        </div>
+        
+        <div className="md:col-span-2">
+          <label htmlFor="address" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+            Street Address
+          </label>
+          <input
+            type="text"
+            id="address"
+            name="address"
+            value={shippingDetails.address}
+            onChange={onShippingChange}
+            required
+            className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
+              theme === 'dark'
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'border-gray-300 text-gray-900'
+            }`}
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="city" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+            City
+          </label>
+          <input
+            type="text"
+            id="city"
+            name="city"
+            value={shippingDetails.city}
+            onChange={onShippingChange}
+            required
+            className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
+              theme === 'dark'
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'border-gray-300 text-gray-900'
+            }`}
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="postalCode" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+            Postal Code
+          </label>
+          <input
+            type="text"
+            id="postalCode"
+            name="postalCode"
+            value={shippingDetails.postalCode}
+            onChange={onShippingChange}
+            required
+            className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
+              theme === 'dark'
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'border-gray-300 text-gray-900'
+            }`}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="state" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+            State/Province (Optional)
+          </label>
+          <input
+            type="text"
+            id="state"
+            name="state"
+            value={shippingDetails.state}
+            onChange={onShippingChange}
+            className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
+              theme === 'dark'
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'border-gray-300 text-gray-900'
+            }`}
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="country" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+            Country
+          </label>
+          <select
+            id="country"
+            name="country"
+            value={shippingDetails.country}
+            onChange={onShippingChange}
+            required
+            className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
+              theme === 'dark'
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'border-gray-300 text-gray-900'
+            }`}
+          >
+            <option value="United States">United States</option>
+            <option value="Canada">Canada</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="Australia">Australia</option>
+            <option value="Germany">Germany</option>
+            <option value="France">France</option>
+            <option value="Japan">Japan</option>
+          </select>
+        </div>
+      </div>
+      
+      <div className="mt-8 flex justify-between items-center">
+        <button
+          type="button"
+          onClick={onNavigateToCart}
+          className={`flex items-center px-4 py-2 rounded-md ${
+            theme === 'dark'
+              ? 'bg-gray-700 text-white hover:bg-gray-600'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          <FiArrowLeft className="mr-2" /> Back to Cart
+        </button>
+        
+        <button
+          type="submit"
+          disabled={isProcessing}
+          className={`btn btn-primary ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
+        >
+          {isProcessing ? 'Creating Order...' : 'Continue to Payment'}
+        </button>
+      </div>
+    </form>
+  </div>
+);
+
+// Payment step component
+const PaymentStep = ({ 
+  error, 
+  totalPrice, 
+  shippingCost, 
+  finalTotal, 
+  formatPrice, 
+  orderResult, 
+  isProcessing, 
+  onPaymentSuccess, 
+  onPaymentError, 
+  onBackToShipping, 
+  theme 
+}: {
+  error: string | null;
+  totalPrice: number;
+  shippingCost: number;
+  finalTotal: number;
+  formatPrice: (price: number) => string;
+  orderResult: any;
+  isProcessing: boolean;
+  onPaymentSuccess: (orderId: string, paypalOrderId: string, printfulOrderId?: string) => void;
+  onPaymentError: (error: string) => void;
+  onBackToShipping: () => void;
+  theme: string;
+}) => (
+  <div>
+    <h2 className={`text-2xl font-semibold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Payment</h2>
+    
+    {error && (
+      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+        <p className="text-red-800 text-sm">{error}</p>
+      </div>
+    )}
+    
+    <div className="mb-6">
+      <h3 className={`text-lg font-medium mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+        Order Summary
+      </h3>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Subtotal</span>
+          <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            {formatPrice(totalPrice)}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Shipping</span>
+          <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+            {shippingCost === 0 ? 'Free' : formatPrice(shippingCost)}
+          </span>
+        </div>
+        <div className={`border-t pt-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div className="flex justify-between font-semibold">
+            <span className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>Total</span>
+            <span className="text-primary-tomato">
+              {formatPrice(finalTotal)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {orderResult?.orderId && orderResult?.paypalOrderId ? (
+      <div className="mb-6">
+        <PayPalButton
+          orderId={orderResult.orderId}
+          paypalOrderId={orderResult.paypalOrderId}
+          amount={finalTotal.toFixed(2)}
+          onSuccess={onPaymentSuccess}
+          onError={onPaymentError}
+          disabled={isProcessing}
+        />
+      </div>
+    ) : (
+      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+        <p className="text-yellow-800 text-sm">
+          Please complete the shipping information first to proceed with payment.
+        </p>
+      </div>
+    )}
+    
+    <div className="flex justify-between items-center">
+      <button
+        type="button"
+        onClick={onBackToShipping}
+        className={`flex items-center px-4 py-2 rounded-md ${
+          theme === 'dark'
+            ? 'bg-gray-700 text-white hover:bg-gray-600'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        }`}
+      >
+        <FiArrowLeft className="mr-2" /> Back to Shipping
+      </button>
+    </div>
+  </div>
+);
+
+// Confirmation step component
+const ConfirmationStep = ({ 
+  shippingDetails, 
+  orderResult, 
+  onNavigateHome, 
+  onNavigateShop, 
+  theme 
+}: {
+  shippingDetails: any;
+  orderResult: any;
+  onNavigateHome: () => void;
+  onNavigateShop: () => void;
+  theme: string;
+}) => (
+  <div className="text-center py-8">
+    <div className={`w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center ${
+      theme === 'dark' ? 'bg-green-800' : 'bg-green-100'
+    }`}>
+      <FiCheck className={`w-8 h-8 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`} />
+    </div>
+    
+    <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+      Order Confirmed!
+    </h2>
+    
+    <p className={`mb-4 max-w-md mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+      Thank you for your purchase. We've sent a confirmation email to {shippingDetails.email}.
+    </p>
+
+    {orderResult && (
+      <div className={`mb-6 p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
+        <h3 className={`text-lg font-medium mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          Order Details
+        </h3>
+        <div className="space-y-1 text-sm">
+          <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
+            Order ID: <span className="font-mono">{orderResult.orderId}</span>
+          </p>
+          <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
+            PayPal Transaction: <span className="font-mono">{orderResult.paypalOrderId}</span>
+          </p>
+          {orderResult.printfulOrderId && (
+            <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
+              Printful Order: <span className="font-mono">{orderResult.printfulOrderId}</span>
+            </p>
+          )}
+        </div>
+      </div>
+    )}
+    
+    <p className={`mb-8 max-w-md mx-auto text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+      Your order will be processed and shipped soon. You can track your order status in your account.
+    </p>
+    
+    <div className="flex flex-col sm:flex-row justify-center gap-4">
+      <button
+        onClick={onNavigateHome}
+        className="btn btn-primary"
+      >
+        Return to Home
+      </button>
+      
+      <button
+        onClick={onNavigateShop}
+        className={`px-4 py-2 rounded-md ${
+          theme === 'dark'
+            ? 'bg-gray-700 text-white hover:bg-gray-600'
+            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+        }`}
+      >
+        Continue Shopping
+      </button>
+    </div>
+  </div>
+);
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { cart, totalPrice, clearCart } = useCart();
+  const { cart, totalPrice, clearCart, loading } = useCart();
   const { theme } = useTheme();
   
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment, 3: Confirmation
   const [isProcessing, setIsProcessing] = useState(false);
+  const [orderResult, setOrderResult] = useState<{ orderId?: string; paypalOrderId?: string; printfulOrderId?: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   // Form states
   const [shippingDetails, setShippingDetails] = useState({
@@ -23,14 +395,35 @@ const CheckoutPage = () => {
     city: '',
     postalCode: '',
     country: 'United States',
+    state: '',
   });
   
-  const [paymentDetails, setPaymentDetails] = useState({
-    cardNumber: '',
-    cardName: '',
-    expiry: '',
-    cvc: '',
-  });
+  // Check if cart is empty and redirect if needed (only after loading is complete)
+  useEffect(() => {
+    if (!loading && cart.length === 0 && step !== 3) {
+      navigate('/cart');
+    }
+  }, [cart.length, step, navigate, loading]);
+  
+  // Calculate shipping cost
+  const shippingCost = totalPrice >= 100 ? 0 : 10;
+  const finalTotal = totalPrice + shippingCost;
+  
+  // Show loading spinner while cart is loading
+  if (loading) {
+    return (
+      <div className="container-custom py-12">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="flex items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-tomato"></div>
+            <span className={`ml-3 text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              Loading checkout...
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   // Format price with currency
   const formatPrice = (price: number) => {
@@ -41,25 +434,66 @@ const CheckoutPage = () => {
   };
   
   // Handle shipping form submission
-  const handleShippingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStep(2);
-    window.scrollTo(0, 0);
-  };
-  
-  // Handle payment form submission
-  const handlePaymentSubmit = (e: React.FormEvent) => {
+  const handleShippingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
+    setError(null);
     
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+      // Create order data
+      const orderData: OrderData = {
+        items: cart,
+        shippingAddress: {
+          fullName: shippingDetails.fullName,
+          email: shippingDetails.email,
+          address: shippingDetails.address,
+          city: shippingDetails.city,
+          postalCode: shippingDetails.postalCode,
+          country: shippingDetails.country,
+          state: shippingDetails.state,
+        },
+        subtotal: totalPrice,
+        shipping: shippingCost,
+        total: finalTotal,
+        userId: user?.id,
+      };
+
+      // Create order and PayPal order
+      const result = await createOrder(orderData);
+      
+      if (result.success && result.orderId && result.paypalOrderId) {
+        setOrderResult({
+          orderId: result.orderId,
+          paypalOrderId: result.paypalOrderId,
+        });
+        setStep(2);
+        window.scrollTo(0, 0);
+      } else {
+        setError(result.error || 'Failed to create order');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      setError(error instanceof Error ? error.message : 'Failed to create order');
+    } finally {
       setIsProcessing(false);
-      setStep(3);
-      // Clear cart after successful checkout
-      clearCart();
-      window.scrollTo(0, 0);
-    }, 2000);
+    }
+  };
+
+  // Handle successful payment
+  const handlePaymentSuccess = (orderId: string, paypalOrderId: string, printfulOrderId?: string) => {
+    setOrderResult({
+      orderId,
+      paypalOrderId,
+      printfulOrderId,
+    });
+    setStep(3);
+    clearCart();
+    window.scrollTo(0, 0);
+  };
+
+  // Handle payment error
+  const handlePaymentError = (error: string) => {
+    setError(error);
   };
   
   // Handle shipping form input changes
@@ -67,342 +501,6 @@ const CheckoutPage = () => {
     const { name, value } = e.target;
     setShippingDetails(prev => ({ ...prev, [name]: value }));
   };
-  
-  // Handle payment form input changes
-  const handlePaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let { name, value } = e.target;
-    
-    // Format card number
-    if (name === 'cardNumber') {
-      value = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim().slice(0, 19);
-    }
-    
-    // Format expiry date
-    if (name === 'expiry') {
-      value = value.replace(/\//g, '');
-      if (value.length > 2) {
-        value = value.slice(0, 2) + '/' + value.slice(2, 4);
-      }
-    }
-    
-    setPaymentDetails(prev => ({ ...prev, [name]: value }));
-  };
-  
-  // Check if cart is empty and redirect if needed
-  if (cart.length === 0 && step !== 3) {
-    navigate('/cart');
-    return null;
-  }
-  
-  // Shipping step UI
-  const ShippingStep = () => (
-    <div>
-      <h2 className={`text-2xl font-semibold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Shipping Information</h2>
-      
-      <form onSubmit={handleShippingSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
-            <label htmlFor="fullName" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="fullName"
-              name="fullName"
-              value={shippingDetails.fullName}
-              onChange={handleShippingChange}
-              required
-              className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                theme === 'dark'
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'border-gray-300 text-gray-900'
-              }`}
-            />
-          </div>
-          
-          <div className="md:col-span-2">
-            <label htmlFor="email" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={shippingDetails.email}
-              onChange={handleShippingChange}
-              required
-              className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                theme === 'dark'
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'border-gray-300 text-gray-900'
-              }`}
-            />
-          </div>
-          
-          <div className="md:col-span-2">
-            <label htmlFor="address" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-              Street Address
-            </label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={shippingDetails.address}
-              onChange={handleShippingChange}
-              required
-              className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                theme === 'dark'
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'border-gray-300 text-gray-900'
-              }`}
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="city" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-              City
-            </label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              value={shippingDetails.city}
-              onChange={handleShippingChange}
-              required
-              className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                theme === 'dark'
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'border-gray-300 text-gray-900'
-              }`}
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="postalCode" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-              Postal Code
-            </label>
-            <input
-              type="text"
-              id="postalCode"
-              name="postalCode"
-              value={shippingDetails.postalCode}
-              onChange={handleShippingChange}
-              required
-              className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                theme === 'dark'
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'border-gray-300 text-gray-900'
-              }`}
-            />
-          </div>
-          
-          <div className="md:col-span-2">
-            <label htmlFor="country" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-              Country
-            </label>
-            <select
-              id="country"
-              name="country"
-              value={shippingDetails.country}
-              onChange={handleShippingChange}
-              required
-              className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                theme === 'dark'
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'border-gray-300 text-gray-900'
-              }`}
-            >
-              <option value="United States">United States</option>
-              <option value="Canada">Canada</option>
-              <option value="United Kingdom">United Kingdom</option>
-              <option value="Australia">Australia</option>
-              <option value="Germany">Germany</option>
-              <option value="France">France</option>
-              <option value="Japan">Japan</option>
-            </select>
-          </div>
-        </div>
-        
-        <div className="mt-8 flex justify-between items-center">
-          <button
-            type="button"
-            onClick={() => navigate('/cart')}
-            className={`flex items-center px-4 py-2 rounded-md ${
-              theme === 'dark'
-                ? 'bg-gray-700 text-white hover:bg-gray-600'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            <FiArrowLeft className="mr-2" /> Back to Cart
-          </button>
-          
-          <button
-            type="submit"
-            className="btn btn-primary"
-          >
-            Continue to Payment
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-  
-  // Payment step UI
-  const PaymentStep = () => (
-    <div>
-      <h2 className={`text-2xl font-semibold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Payment Information</h2>
-      
-      <form onSubmit={handlePaymentSubmit}>
-        <div className="grid grid-cols-1 gap-6">
-          <div>
-            <label htmlFor="cardName" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-              Name on Card
-            </label>
-            <input
-              type="text"
-              id="cardName"
-              name="cardName"
-              value={paymentDetails.cardName}
-              onChange={handlePaymentChange}
-              required
-              className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                theme === 'dark'
-                  ? 'bg-gray-700 border-gray-600 text-white'
-                  : 'border-gray-300 text-gray-900'
-              }`}
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="cardNumber" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-              Card Number
-            </label>
-            <input
-              type="text"
-              id="cardNumber"
-              name="cardNumber"
-              value={paymentDetails.cardNumber}
-              onChange={handlePaymentChange}
-              required
-              placeholder="0000 0000 0000 0000"
-              maxLength={19}
-              className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                theme === 'dark'
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-500'
-                  : 'border-gray-300 text-gray-900 placeholder:text-gray-400'
-              }`}
-            />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="expiry" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-                Expiry Date
-              </label>
-              <input
-                type="text"
-                id="expiry"
-                name="expiry"
-                value={paymentDetails.expiry}
-                onChange={handlePaymentChange}
-                required
-                placeholder="MM/YY"
-                maxLength={5}
-                className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                  theme === 'dark'
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-500'
-                    : 'border-gray-300 text-gray-900 placeholder:text-gray-400'
-                }`}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="cvc" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-                CVC
-              </label>
-              <input
-                type="text"
-                id="cvc"
-                name="cvc"
-                value={paymentDetails.cvc}
-                onChange={handlePaymentChange}
-                required
-                placeholder="123"
-                maxLength={3}
-                className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
-                  theme === 'dark'
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder:text-gray-500'
-                    : 'border-gray-300 text-gray-900 placeholder:text-gray-400'
-                }`}
-              />
-            </div>
-          </div>
-        </div>
-        
-        <div className="mt-8 flex justify-between items-center">
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className={`flex items-center px-4 py-2 rounded-md ${
-              theme === 'dark'
-                ? 'bg-gray-700 text-white hover:bg-gray-600'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            <FiArrowLeft className="mr-2" /> Back to Shipping
-          </button>
-          
-          <button
-            type="submit"
-            disabled={isProcessing}
-            className={`btn btn-primary ${isProcessing ? 'opacity-70 cursor-not-allowed' : ''}`}
-          >
-            {isProcessing ? 'Processing...' : 'Complete Order'}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-  
-  // Confirmation step UI
-  const ConfirmationStep = () => (
-    <div className="text-center py-8">
-      <div className={`w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center ${
-        theme === 'dark' ? 'bg-green-800' : 'bg-green-100'
-      }`}>
-        <FiCheck className={`w-8 h-8 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`} />
-      </div>
-      
-      <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-        Order Confirmed!
-      </h2>
-      
-      <p className={`mb-8 max-w-md mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-        Thank you for your purchase. We've sent a confirmation email to {shippingDetails.email}.
-        Your order will be processed and shipped soon.
-      </p>
-      
-      <div className="flex flex-col sm:flex-row justify-center gap-4">
-        <button
-          onClick={() => navigate('/')}
-          className="btn btn-primary"
-        >
-          Return to Home
-        </button>
-        
-        <button
-          onClick={() => navigate('/shop')}
-          className={`px-4 py-2 rounded-md ${
-            theme === 'dark'
-              ? 'bg-gray-700 text-white hover:bg-gray-600'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          Continue Shopping
-        </button>
-      </div>
-    </div>
-  );
   
   return (
     <div className="container-custom py-12">
@@ -485,9 +583,35 @@ const CheckoutPage = () => {
           {/* Main Checkout Form */}
           <div className="md:col-span-2">
             <div className={`p-6 rounded-lg shadow-md ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
-              {step === 1 && <ShippingStep />}
-              {step === 2 && <PaymentStep />}
-              {step === 3 && <ConfirmationStep />}
+              {step === 1 && <ShippingStep
+                shippingDetails={shippingDetails}
+                onShippingChange={handleShippingChange}
+                onSubmit={handleShippingSubmit}
+                isProcessing={isProcessing}
+                error={error}
+                theme={theme}
+                onNavigateToCart={() => navigate('/cart')}
+              />}
+              {step === 2 && <PaymentStep
+                error={error}
+                totalPrice={totalPrice}
+                shippingCost={shippingCost}
+                finalTotal={finalTotal}
+                formatPrice={formatPrice}
+                orderResult={orderResult}
+                isProcessing={isProcessing}
+                onPaymentSuccess={handlePaymentSuccess}
+                onPaymentError={handlePaymentError}
+                onBackToShipping={() => setStep(1)}
+                theme={theme}
+              />}
+              {step === 3 && <ConfirmationStep
+                shippingDetails={shippingDetails}
+                orderResult={orderResult}
+                onNavigateHome={() => navigate('/')}
+                onNavigateShop={() => navigate('/shop')}
+                theme={theme}
+              />}
             </div>
           </div>
           
@@ -532,14 +656,14 @@ const CheckoutPage = () => {
                   <div className="flex justify-between">
                     <span className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>Shipping</span>
                     <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                      {totalPrice >= 100 ? 'Free' : formatPrice(10)}
+                      {shippingCost === 0 ? 'Free' : formatPrice(shippingCost)}
                     </span>
                   </div>
                   <div className={`border-t pt-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                     <div className="flex justify-between font-semibold">
                       <span className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>Total</span>
                       <span className="text-primary-tomato">
-                        {formatPrice(totalPrice >= 100 ? totalPrice : totalPrice + 10)}
+                        {formatPrice(finalTotal)}
                       </span>
                     </div>
                   </div>

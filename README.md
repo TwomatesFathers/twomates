@@ -1,74 +1,87 @@
-# TwoMates
+# TwoMates E-commerce Platform
 
-A modern web application built with React, TypeScript, and Vite, designed to help users manage tasks efficiently.
+A modern e-commerce platform built with React, TypeScript, Supabase, and integrated with Printful for print-on-demand products and PayPal for payments.
 
 ## Features
 
-- Clean, modern UI built with React 19 and Tailwind CSS
-- Type-safe development with TypeScript
-- Responsive design for mobile and desktop
-- Supabase integration for backend services
-- React Router for navigation
-- React Query for data fetching
+- 🛍️ Modern e-commerce interface
+- 🎨 Print-on-demand products via Printful integration
+- 💳 PayPal payment processing
+- 👤 User authentication and account management
+- 🛒 Shopping cart functionality
+- 📱 Responsive design with dark/light theme
+- 🔄 Real-time inventory management
 
-## Getting Started
+## Environment Setup
 
-### Prerequisites
+Create a `.env` file in the root directory with the following variables:
 
-- Node.js (v18 or higher recommended)
-- npm or yarn
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL=your_supabase_url_here
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
-### Installation
+# Printful Configuration
+VITE_PRINTFUL_API_KEY=your_printful_api_key_here
 
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/twomates.git
-cd twomates
+# PayPal Configuration
+VITE_PAYPAL_CLIENT_ID=your_paypal_client_id_here
+VITE_PAYPAL_CLIENT_SECRET=your_paypal_client_secret_here
+VITE_PAYPAL_ENVIRONMENT=sandbox
+
+# OAuth Provider Redirect URI (optional)
+VITE_PROVIDER_REDIRECT_URI=http://localhost:5173
 ```
 
-2. Install dependencies
+### Getting API Keys
+
+1. **Supabase**: Create a project at [supabase.com](https://supabase.com)
+2. **Printful**: Get API key from [Printful Developer Portal](https://developers.printful.com/)
+3. **PayPal**: Create an app at [PayPal Developer](https://developer.paypal.com/)
+
+## Installation
+
 ```bash
 npm install
-# or
-yarn
-```
-
-3. Set up environment variables
-   - Copy `.env` to `.env.local` and update values as needed
-
-4. Start the development server
-```bash
-npm run dev
-# or
-yarn dev
 ```
 
 ## Development
 
-### Available Scripts
-
-- `npm run dev` - Start the development server
-- `npm run build` - Build the application for production
-- `npm run lint` - Run ESLint to check for code issues
-- `npm run preview` - Preview the production build locally
-
-### Project Structure
-
+```bash
+npm run dev
 ```
-twomates/
-├── public/          # Static assets
-├── src/
-│   ├── assets/      # Images and other assets
-│   ├── components/  # Reusable UI components
-│   ├── context/     # React context providers
-│   ├── lib/         # Utility functions and libraries
-│   ├── pages/       # Page components
-│   ├── App.tsx      # App component
-│   └── main.tsx     # Application entry point
-├── .env             # Environment variables (copy to .env.local)
-├── index.html       # HTML entry point
-└── vite.config.ts   # Vite configuration
+
+## Building
+
+```bash
+npm run build
 ```
+
+## Printful Product Sync
+
+To sync products from Printful to your database:
+
+```bash
+npm run sync-printful
+```
+
+## Order Flow
+
+1. **Cart Management**: Users add products to cart
+2. **Checkout**: Shipping information collection
+3. **Payment**: PayPal integration for secure payments
+4. **Order Processing**: Automatic order creation in Printful
+5. **Fulfillment**: Printful handles printing and shipping
+
+## Tech Stack
+
+- **Frontend**: React 19, TypeScript, Tailwind CSS
+- **Backend**: Supabase (PostgreSQL, Auth, Real-time)
+- **Payments**: PayPal SDK
+- **Print-on-Demand**: Printful API
+- **Build Tool**: Vite
+- **State Management**: React Context
+- **Styling**: Tailwind CSS with custom theme
 
 ## Technologies
 

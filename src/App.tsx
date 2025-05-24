@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
+import PayPalProvider from './components/checkout/PayPalProvider';
 
 // Layouts
 import Layout from './components/layout/Layout';
@@ -27,21 +28,23 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <CartProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<HomePage />} />
-                  <Route path="shop" element={<ShopPage />} />
-                  <Route path="product/:id" element={<ProductPage />} />
-                  <Route path="cart" element={<CartPage />} />
-                  <Route path="checkout" element={<CheckoutPage />} />
-                  <Route path="login" element={<LoginPage />} />
-                  <Route path="register" element={<RegisterPage />} />
-                  <Route path="account/*" element={<AccountPage />} />
-                  <Route path="*" element={<NotFoundPage />} />
-                </Route>
-              </Routes>
-            </Router>
+            <PayPalProvider>
+              <Router>
+                <Routes>
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={<HomePage />} />
+                    <Route path="shop" element={<ShopPage />} />
+                    <Route path="product/:id" element={<ProductPage />} />
+                    <Route path="cart" element={<CartPage />} />
+                    <Route path="checkout" element={<CheckoutPage />} />
+                    <Route path="login" element={<LoginPage />} />
+                    <Route path="register" element={<RegisterPage />} />
+                    <Route path="account/*" element={<AccountPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Route>
+                </Routes>
+              </Router>
+            </PayPalProvider>
           </CartProvider>
         </AuthProvider>
       </ThemeProvider>

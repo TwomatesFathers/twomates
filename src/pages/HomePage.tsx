@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase, Product } from "../lib/supabase";
 import ProductCarousel from "../components/ui/ProductCarousel";
+import tomatoImage from "../assets/tomato.jpeg";
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
@@ -48,25 +49,48 @@ const HomePage = () => {
             });
           } else {
             const existingGroup = productGroups.get(groupKey);
-            if (product.size && !existingGroup.available_sizes.includes(product.size)) {
-              existingGroup.available_sizes.push(product.size);
+            
+            // Accumulate all sizes from all variants
+            const allSizes = [...existingGroup.available_sizes];
+            if (product.size && !allSizes.includes(product.size)) {
+              allSizes.push(product.size);
             }
             
             // Use the variant with the lowest price as the representative
             if (product.price < existingGroup.price) {
               productGroups.set(groupKey, {
                 ...product,
-                available_sizes: existingGroup.available_sizes
+                available_sizes: allSizes
+              });
+            } else {
+              // Keep the existing product but update the sizes
+              productGroups.set(groupKey, {
+                ...existingGroup,
+                available_sizes: allSizes
               });
             }
           }
         });
 
         // Convert map to array and sort available_sizes
-        const groupedProducts = Array.from(productGroups.values()).map(product => ({
+        let groupedProducts = Array.from(productGroups.values()).map(product => ({
           ...product,
           available_sizes: product.available_sizes.sort()
         }));
+
+        // If we have fewer than 4 unique product groups, add individual variants to reach 4 items
+        if (groupedProducts.length < 4) {
+          const usedProductIds = new Set(groupedProducts.map(p => p.id));
+          const additionalVariants = (data || [])
+            .filter(product => !usedProductIds.has(product.id))
+            .map(product => ({
+              ...product,
+              available_sizes: [product.size].filter(Boolean)
+            }))
+            .slice(0, 4 - groupedProducts.length);
+          
+          groupedProducts = [...groupedProducts, ...additionalVariants];
+        }
 
         setFeaturedProducts(groupedProducts.slice(0, 4));
       } catch (error) {
@@ -272,7 +296,7 @@ const HomePage = () => {
             >
               <div className="rounded-lg overflow-hidden shadow-lg bg-gray-50 dark:bg-gray-800">
                 <img
-                  src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+                  src={tomatoImage}
                   alt="Two mates designing clothes"
                   className="w-full h-auto"
                 />

@@ -37,19 +37,58 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Function to create or update user profile
+  const ensureUserProfile = async (authUser: User) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: authUser.id,
+          email: authUser.email || '',
+          full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
+          avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || '',
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'id'
+        });
+
+      if (error) {
+        console.error('Error creating/updating user profile:', error);
+      } else {
+        console.log('User profile ensured for:', authUser.id);
+      }
+    } catch (error) {
+      console.error('Error in ensureUserProfile:', error);
+    }
+  };
+
   useEffect(() => {
     // Get session from Supabase
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setUser(session?.user as User || null);
+      const authUser = session?.user as User || null;
+      setUser(authUser);
+      
+      // Create/update profile when session is loaded
+      if (authUser) {
+        ensureUserProfile(authUser);
+      }
+      
       setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (event, session) => {
         setSession(session);
-        setUser(session?.user as User || null);
+        const authUser = session?.user as User || null;
+        setUser(authUser);
+        
+        // Create/update profile when user signs in
+        if (authUser && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          await ensureUserProfile(authUser);
+        }
+        
         setLoading(false);
       }
     );

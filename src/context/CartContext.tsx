@@ -24,6 +24,46 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
+  // Function to ensure user profile exists
+  const ensureUserProfile = async (userId: string) => {
+    try {
+      // Check if profile exists
+      const { data: existingProfile, error: checkError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        // PGRST116 means no rows returned, which is expected if profile doesn't exist
+        throw checkError;
+      }
+
+      if (!existingProfile) {
+        // Create profile if it doesn't exist
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            email: user?.email || '',
+            full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || '',
+            avatar_url: user?.user_metadata?.avatar_url || user?.user_metadata?.picture || '',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        console.log('Created user profile for:', userId);
+      }
+    } catch (error) {
+      console.error('Error ensuring user profile:', error);
+      throw error;
+    }
+  };
+
   // Fetch products on mount
   useEffect(() => {
     const fetchProducts = async () => {
@@ -154,26 +194,58 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         };
 
         if (user) {
-          // For logged-in users, save to database
-          const { data, error } = await supabase
-            .from('cart_items')
-            .insert({
-              id: newItem.id,
-              user_id: newItem.user_id,
-              product_id: newItem.product_id,
-              quantity: newItem.quantity,
-              size: newItem.size,
-              created_at: newItem.created_at
-            })
-            .select(`
-              *,
-              product:products(*)
-            `)
-            .single();
+          // For logged-in users, ensure profile exists first, then save to database
+          await ensureUserProfile(user.id);
           
-          if (error) throw error;
-          
-          setCart([...cart, data]);
+          try {
+            const { data, error } = await supabase
+              .from('cart_items')
+              .insert({
+                id: newItem.id,
+                user_id: newItem.user_id,
+                product_id: newItem.product_id,
+                quantity: newItem.quantity,
+                size: newItem.size,
+                created_at: newItem.created_at
+              })
+              .select(`
+                *,
+                product:products(*)
+              `)
+              .single();
+            
+            if (error) throw error;
+            
+            setCart([...cart, data]);
+          } catch (dbError: any) {
+            // If we still get a foreign key error, try creating the profile again
+            if (dbError.code === '23503' && dbError.message.includes('profiles')) {
+              console.log('Retrying cart addition after profile creation...');
+              await ensureUserProfile(user.id);
+              
+              // Retry the cart insertion
+              const { data, error: retryError } = await supabase
+                .from('cart_items')
+                .insert({
+                  id: newItem.id,
+                  user_id: newItem.user_id,
+                  product_id: newItem.product_id,
+                  quantity: newItem.quantity,
+                  size: newItem.size,
+                  created_at: newItem.created_at
+                })
+                .select(`
+                  *,
+                  product:products(*)
+                `)
+                .single();
+              
+              if (retryError) throw retryError;
+              setCart([...cart, data]);
+            } else {
+              throw dbError;
+            }
+          }
         } else {
           // For guests, just add to local state
           setCart([...cart, newItem]);
