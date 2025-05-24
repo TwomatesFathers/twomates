@@ -270,7 +270,7 @@ const HomePage = () => {
               <img
                 src={holdupImage}
                 alt="Wait"
-                className="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 mb-6 object-contain"
+                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain"
               />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-display text-gray-900 dark:text-white">
                 wait...
@@ -304,7 +304,7 @@ const HomePage = () => {
               <img
                 src={goImage}
                 alt="Move on"
-                className="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 mb-6 object-contain"
+                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain"
               />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-display text-gray-900 dark:text-white">
                 okay move on
