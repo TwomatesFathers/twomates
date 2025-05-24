@@ -18,9 +18,14 @@ const PayPalProvider = ({ children }: PayPalProviderProps) => {
     clientId: clientId,
     "client-id": clientId,
     currency: "USD",
+    locale: "en_NO",
     intent: "capture",
     "data-client-token": undefined,
     environment: environment as "sandbox" | "production",
+    components: "buttons,funding-eligibility",
+    "buyer-country": "NO",
+    "enable-funding": "venmo,paylater",
+    "disable-funding": "",
   };
 
   return (

@@ -93,6 +93,14 @@ const PayPalButton = ({
           shape: 'rect',
           label: 'paypal',
           height: 45,
+          tagline: false,
+        }}
+        fundingSource={undefined}
+        onInit={(_data, _actions) => {
+          console.log('PayPal initialized for Norwegian checkout');
+        }}
+        onCancel={(data) => {
+          console.log('PayPal payment cancelled:', data);
         }}
       />
     </div>

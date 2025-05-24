@@ -244,6 +244,47 @@ body {
   }
 
   .dark .danger-btn:hover {
-    background-color: #991B1B;
+    background-color: #DC2626;
+  }
+}
+
+/* PayPal specific overrides for Norwegian users and z-index fixes */
+/* Fix PayPal z-index issues - ensure PayPal elements don't appear above navbar (z-50) */
+.paypal-checkout-sandbox,
+.paypal-checkout-production,
+[data-reactroot] [data-paypal-checkout],
+.paypal-buttons,
+.paypal-button-layout-vertical,
+.paypal-button-layout-horizontal {
+  position: relative !important;
+  z-index: 40 !important; /* Below navbar z-50 but above most content */
+}
+
+/* PayPal modal and overlay fixes */
+.paypal-overlay,
+.paypal-modal,
+.paypal-lightbox,
+.paypal-component-modal,
+[id*="paypal"][id*="modal"],
+[class*="paypal"][class*="modal"] {
+  z-index: 45 !important; /* Below navbar but above button */
+}
+
+/* Ensure PayPal error messages and loading states are visible */
+.paypal-checkout-loader,
+.paypal-checkout-error {
+  z-index: 41 !important;
+}
+
+/* Additional PayPal styling for better Norwegian UX */
+.paypal-buttons {
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Responsive PayPal button sizing */
+@media (max-width: 640px) {
+  .paypal-buttons {
+    min-height: 40px;
   }
 }

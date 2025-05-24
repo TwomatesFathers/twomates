@@ -101,10 +101,15 @@ export interface PrintfulOrderItem {
 // Create a Printful API client
 class PrintfulClient {
   private apiKey: string;
-  private baseUrl: string = 'https://api.printful.com';
+  private baseUrl: string;
   
   constructor(apiKey: string) {
     this.apiKey = apiKey;
+    // Use proxy in development, direct API in production
+    const isDevelopment = import.meta.env.DEV;
+    this.baseUrl = isDevelopment 
+      ? '/api/printful' // Proxy URL for development
+      : 'https://api.printful.com'; // Direct API for production (needs backend)
   }
 
   private getHeaders() {
@@ -143,12 +148,59 @@ class PrintfulClient {
   // Create an order in Printful
   async createOrder(order: any): Promise<PrintfulOrder> {
     try {
-      const response = await axios.post(`${this.baseUrl}/orders`, order, {
+      const isDevelopment = import.meta.env.DEV;
+      
+      if (isDevelopment) {
+        // Development: Use proxy
+        const response = await axios.post(`${this.baseUrl}/orders`, order, {
+          headers: this.getHeaders()
+        });
+        return response.data.result;
+      } else {
+        // Production: Use Supabase Edge Function to avoid CORS
+        const { supabase } = await import('./supabase');
+        const { data, error } = await supabase.functions.invoke('create-printful-order', {
+          body: { orderData: order, confirm: order.confirm || true }
+        });
+        
+        if (error) {
+          throw new Error(`Edge function error: ${error.message}`);
+        }
+        
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to create Printful order');
+        }
+        
+        return data.order;
+      }
+    } catch (error) {
+      console.error('Error creating Printful order:', error);
+      throw error;
+    }
+  }
+
+  // Confirm a draft order in Printful
+  async confirmOrder(orderId: string | number): Promise<PrintfulOrder> {
+    try {
+      const response = await axios.post(`${this.baseUrl}/orders/${orderId}/confirm`, {}, {
         headers: this.getHeaders()
       });
       return response.data.result;
     } catch (error) {
-      console.error('Error creating Printful order:', error);
+      console.error(`Error confirming Printful order ${orderId}:`, error);
+      throw error;
+    }
+  }
+
+  // Get order details
+  async getOrder(orderId: string | number): Promise<PrintfulOrder> {
+    try {
+      const response = await axios.get(`${this.baseUrl}/orders/${orderId}`, {
+        headers: this.getHeaders()
+      });
+      return response.data.result;
+    } catch (error) {
+      console.error(`Error fetching Printful order ${orderId}:`, error);
       throw error;
     }
   }

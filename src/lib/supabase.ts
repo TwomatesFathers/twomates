@@ -63,11 +63,13 @@ export interface CartItem {
 export interface Order {
   id: string;
   user_id: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'payment_pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'failed';
   total: number;
   created_at?: string;
   items: OrderItem[];
   shipping_address: Address;
+  paypal_order_id?: string;      // PayPal order ID
+  payment_captured_at?: string;  // When payment was captured
   printful_order_id?: string;
   tracking_number?: string;
   tracking_url?: string;

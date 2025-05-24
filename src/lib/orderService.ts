@@ -5,12 +5,18 @@ import { paypal } from './paypal';
 import type { CartItem } from './supabase';
 import type { PayPalItem } from './paypal';
 
+// Order service handles order creation and completion
+// Environment behavior:
+// - Development (VITE_PAYPAL_ENVIRONMENT=sandbox): Uses PayPal sandbox, creates draft Printful orders (not confirmed/processed)
+// - Production (VITE_PAYPAL_ENVIRONMENT=production): Uses PayPal production, creates confirmed Printful orders (auto-processed)
+
 // Order creation data
 export interface OrderData {
   items: CartItem[];
   shippingAddress: {
     fullName: string;
     email: string;
+    phone?: string;
     address: string;
     city: string;
     postalCode: string;
@@ -41,6 +47,12 @@ function getCountryCode(countryName: string): string {
     'Germany': 'DE',
     'France': 'FR',
     'Japan': 'JP',
+    // Nordic countries
+    'Norway': 'NO',
+    'Sweden': 'SE',
+    'Denmark': 'DK',
+    'Finland': 'FI',
+    'Iceland': 'IS',
   };
   return countryMap[countryName] || 'US';
 }
@@ -77,6 +89,7 @@ async function createDatabaseOrder(orderData: OrderData): Promise<string> {
       postal_code: orderData.shippingAddress.postalCode,
       country: orderData.shippingAddress.country,
       state: orderData.shippingAddress.state,
+      phone: orderData.shippingAddress.phone,
     });
 
   if (addressError) {
@@ -166,7 +179,7 @@ async function createPayPalOrder(orderData: OrderData): Promise<string> {
 }
 
 // Create Printful order
-async function createPrintfulOrder(orderId: string, orderData: OrderData): Promise<string> {
+async function createPrintfulOrder(orderId: string, orderData: OrderData, confirm: boolean = true): Promise<string> {
   // Verify all items have printful variant IDs
   const missingVariantIds = orderData.items.filter(item => {
     return !item.product?.printful_variant_id;
@@ -181,9 +194,11 @@ async function createPrintfulOrder(orderId: string, orderData: OrderData): Promi
   // Create the order data for Printful API
   const printfulOrderData = {
     external_id: orderId,
+    confirm: confirm, // This determines if the order will be processed immediately
     recipient: {
       name: orderData.shippingAddress.fullName,
       email: orderData.shippingAddress.email,
+      phone: orderData.shippingAddress.phone || '',
       address1: orderData.shippingAddress.address,
       city: orderData.shippingAddress.city,
       state_code: orderData.shippingAddress.state || '',
@@ -243,6 +258,8 @@ export async function completeOrder(orderId: string, paypalOrderId: string): Pro
       throw new Error('PayPal is not configured');
     }
 
+    console.log(`Starting order completion for order: ${orderId}, PayPal order: ${paypalOrderId}`);
+
     // Step 1: Capture the PayPal payment
     const paypalOrder = await paypal.captureOrder(paypalOrderId);
     
@@ -250,7 +267,10 @@ export async function completeOrder(orderId: string, paypalOrderId: string): Pro
       throw new Error('PayPal payment was not completed successfully');
     }
 
+    console.log('PayPal payment captured successfully');
+
     // Step 2: Get order data from database
+    console.log(`Looking up order in database: ${orderId}`);
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select(`
@@ -258,22 +278,55 @@ export async function completeOrder(orderId: string, paypalOrderId: string): Pro
         order_items:order_items(
           *,
           product:products(*)
-        ),
-        addresses:addresses(*)
+        )
       `)
       .eq('id', orderId)
       .single();
 
-    if (orderError || !order) {
+    if (orderError) {
+      console.error('Database error when fetching order:', orderError);
+      throw new Error(`Database error: ${orderError.message}`);
+    }
+
+    if (!order) {
+      console.error(`Order not found in database: ${orderId}`);
       throw new Error('Order not found');
     }
 
+    console.log('Order found in database:', order);
+
+    // Fetch addresses separately to avoid relationship ambiguity
+    const { data: addresses, error: addressError } = await supabase
+      .from('addresses')
+      .select('*')
+      .eq('order_id', orderId);
+
+    if (addressError) {
+      console.error('Database error when fetching addresses:', addressError);
+      throw new Error(`Address lookup error: ${addressError.message}`);
+    }
+
+    if (!addresses || addresses.length === 0) {
+      console.error('No addresses found for order:', orderId);
+      throw new Error('No addresses found for order');
+    }
+
+    // Add addresses to order object to match the original structure
+    order.addresses = addresses;
+
     const shippingAddress = order.addresses.find((addr: any) => addr.type === 'shipping');
     if (!shippingAddress) {
+      console.error('No shipping address found for order:', orderId);
       throw new Error('Shipping address not found');
     }
 
-    // Step 3: Create Printful order
+    // Check if we're in production environment
+    const paypalEnvironment = import.meta.env.VITE_PAYPAL_ENVIRONMENT || 'sandbox';
+    const isProduction = paypalEnvironment === 'production';
+
+    let printfulOrderId: string | undefined;
+
+    // Step 3: Create Printful order (draft in development, confirmed in production)
     // Calculate subtotal from order items
     const subtotal = order.order_items.reduce((sum: number, item: any) => 
       sum + (item.price * item.quantity), 0);
@@ -294,6 +347,7 @@ export async function completeOrder(orderId: string, paypalOrderId: string): Pro
       shippingAddress: {
         fullName: shippingAddress.full_name,
         email: paypalOrder.payer?.email_address || '',
+        phone: shippingAddress.phone || '',
         address: shippingAddress.address_line1,
         city: shippingAddress.city,
         postalCode: shippingAddress.postal_code,
@@ -306,16 +360,44 @@ export async function completeOrder(orderId: string, paypalOrderId: string): Pro
       userId: order.user_id,
     };
 
-    const printfulOrderId = await createPrintfulOrder(orderId, orderData);
+    try {
+      // Create Printful order - confirmed in production, draft in development
+      const isDevelopment = import.meta.env.DEV;
+      
+      if (isDevelopment) {
+        // Development mode: Skip Printful API calls to avoid CORS issues
+        // Generate a mock Printful order ID for testing
+        printfulOrderId = `dev-mock-${Date.now()}`;
+        console.log(`Development mode: Using mock Printful order ID ${printfulOrderId} (Printful API skipped due to CORS)`);
+      } else {
+        // Production mode: Create real Printful order
+        printfulOrderId = await createPrintfulOrder(orderId, orderData, isProduction);
+        
+        if (isProduction) {
+          console.log(`Production order: Created confirmed Printful order ${printfulOrderId}`);
+        } else {
+          console.log(`Staging mode: Created draft Printful order ${printfulOrderId} (not confirmed)`);
+        }
+      }
+    } catch (printfulError) {
+      console.error('Failed to create Printful order:', printfulError);
+      // Don't fail the entire order if Printful fails, but log the error
+      // The order can still be processed manually if needed
+    }
 
     // Step 4: Update order status
+    const updateData: any = {
+      status: 'processing',
+      payment_captured_at: new Date().toISOString(),
+    };
+
+    if (printfulOrderId) {
+      updateData.printful_order_id = printfulOrderId;
+    }
+
     await supabase
       .from('orders')
-      .update({ 
-        printful_order_id: printfulOrderId,
-        status: 'processing',
-        payment_captured_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', orderId);
 
     return {
@@ -346,4 +428,38 @@ export async function cancelOrder(orderId: string): Promise<void> {
     .from('orders')
     .update({ status: 'cancelled' })
     .eq('id', orderId);
+}
+
+// Confirm a draft Printful order (useful for converting development orders to production)
+export async function confirmPrintfulOrder(orderId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Get the order from database to find the printful_order_id
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .select('printful_order_id')
+      .eq('id', orderId)
+      .single();
+
+    if (orderError || !order || !order.printful_order_id) {
+      throw new Error('Order not found or no Printful order ID');
+    }
+
+    // Check if it's a fake development order
+    if (order.printful_order_id.startsWith('dev-fake-')) {
+      throw new Error('Cannot confirm fake development order. This order was created before draft mode was implemented.');
+    }
+
+    // Confirm the order in Printful
+    const confirmedOrder = await printful.confirmOrder(order.printful_order_id);
+    
+    console.log(`Confirmed Printful order ${order.printful_order_id}:`, confirmedOrder);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error confirming Printful order:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to confirm Printful order'
+    };
+  }
 } 

@@ -76,6 +76,26 @@ const ShippingStep = ({
         </div>
         
         <div className="md:col-span-2">
+          <label htmlFor="phone" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={shippingDetails.phone}
+            onChange={onShippingChange}
+            placeholder="+47 123 45 678"
+            required
+            className={`w-full px-4 py-2 rounded-md focus:ring focus:ring-primary-tomato focus:ring-opacity-50 ${
+              theme === 'dark'
+                ? 'bg-gray-700 border-gray-600 text-white'
+                : 'border-gray-300 text-gray-900'
+            }`}
+          />
+        </div>
+        
+        <div className="md:col-span-2">
           <label htmlFor="address" className={`block text-sm font-medium mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
             Street Address
           </label>
@@ -304,13 +324,15 @@ const ConfirmationStep = ({
   orderResult, 
   onNavigateHome, 
   onNavigateShop, 
-  theme 
+  theme,
+  isDevMode 
 }: {
   shippingDetails: any;
   orderResult: any;
   onNavigateHome: () => void;
   onNavigateShop: () => void;
   theme: string;
+  isDevMode: boolean;
 }) => (
   <div className="text-center py-8">
     <div className={`w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center ${
@@ -320,12 +342,23 @@ const ConfirmationStep = ({
     </div>
     
     <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-      Order Confirmed!
+      {isDevMode ? 'Test Order Confirmed!' : 'Order Confirmed!'}
     </h2>
     
     <p className={`mb-4 max-w-md mx-auto ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-      Thank you for your purchase. We've sent a confirmation email to {shippingDetails.email}.
+      {isDevMode 
+        ? `This is a test order in development mode. We've sent a confirmation email to ${shippingDetails.email}.`
+        : `Thank you for your purchase. We've sent a confirmation email to ${shippingDetails.email}.`
+      }
     </p>
+
+    {isDevMode && (
+      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md max-w-md mx-auto">
+        <p className="text-yellow-800 text-sm">
+          <strong>Development Mode:</strong> This is a test order. A draft Printful order was created but won't be processed until confirmed.
+        </p>
+      </div>
+    )}
 
     {orderResult && (
       <div className={`mb-6 p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-50'}`}>
@@ -341,7 +374,7 @@ const ConfirmationStep = ({
           </p>
           {orderResult.printfulOrderId && (
             <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
-              Printful Order: <span className="font-mono">{orderResult.printfulOrderId}</span>
+              {isDevMode ? 'Mock Printful' : 'Printful'} Order: <span className="font-mono">{orderResult.printfulOrderId}</span>
             </p>
           )}
         </div>
@@ -349,7 +382,10 @@ const ConfirmationStep = ({
     )}
     
     <p className={`mb-8 max-w-md mx-auto text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-      Your order will be processed and shipped soon. You can track your order status in your account.
+      {isDevMode 
+        ? 'In production, your order would be automatically confirmed and processed. You can track order status in your account.'
+        : 'Your order will be processed and shipped soon. You can track your order status in your account.'
+      }
     </p>
     
     <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -389,12 +425,16 @@ const CheckoutPage = () => {
   const [shippingDetails, setShippingDetails] = useState({
     fullName: user?.full_name || '',
     email: user?.email || '',
+    phone: '+47 ', // Default Norwegian phone prefix
     address: '',
     city: '',
     postalCode: '',
-    country: 'United States',
+    country: 'Norway', // Default to Norway for Norwegian users
     state: '',
   });
+  
+  // Check if we're in development mode
+  const isDevMode = (import.meta.env.VITE_PAYPAL_ENVIRONMENT || 'sandbox') === 'sandbox';
   
   // Check if cart is empty and redirect if needed (only after loading is complete)
   useEffect(() => {
@@ -444,6 +484,7 @@ const CheckoutPage = () => {
         shippingAddress: {
           fullName: shippingDetails.fullName,
           email: shippingDetails.email,
+          phone: shippingDetails.phone,
           address: shippingDetails.address,
           city: shippingDetails.city,
           postalCode: shippingDetails.postalCode,
@@ -507,6 +548,24 @@ const CheckoutPage = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
+        {/* Development Mode Indicator */}
+        {isDevMode && (
+          <div className="mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded-md">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Development Mode:</strong> PayPal sandbox enabled. Printful orders will be created as drafts (not processed).
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Checkout Steps */}
         {step !== 3 && (
           <div className="mb-8">
@@ -609,6 +668,7 @@ const CheckoutPage = () => {
                 onNavigateHome={() => navigate('/')}
                 onNavigateShop={() => navigate('/shop')}
                 theme={theme}
+                isDevMode={isDevMode}
               />}
             </div>
           </div>

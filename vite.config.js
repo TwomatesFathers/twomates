@@ -41,6 +41,26 @@ export default defineConfig(function () { return __awaiter(void 0, void 0, void 
     return __generator(this, function (_a) {
         return [2 /*return*/, ({
                 plugins: [react()],
+                server: {
+                    proxy: {
+                        '/api/printful': {
+                            target: 'https://api.printful.com',
+                            changeOrigin: true,
+                            secure: true,
+                            rewrite: function (path) { return path.replace(/^\/api\/printful/, ''); },
+                            configure: function (proxy, _options) {
+                                proxy.on('proxyReq', function (proxyReq, req, res) {
+                                    // Add Authorization header from environment
+                                    var apiKey = process.env.VITE_PRINTFUL_API_KEY;
+                                    if (apiKey) {
+                                        proxyReq.setHeader('Authorization', "Bearer ".concat(apiKey));
+                                    }
+                                    proxyReq.setHeader('Content-Type', 'application/json');
+                                });
+                            },
+                        },
+                    },
+                },
             })];
     });
 }); });
