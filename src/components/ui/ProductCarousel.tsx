@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { Product } from '../../lib/supabase';
 import ProductCard from '../shop/ProductCard';
@@ -10,7 +10,6 @@ interface ProductCarouselProps {
 
 const ProductCarousel = ({ products }: ProductCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [dragOffset, setDragOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const nextSlide = () => {
@@ -66,10 +65,10 @@ const ProductCarousel = ({ products }: ProductCarouselProps) => {
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.1}
-            onDrag={(e, { offset }) => {
-              setDragOffset(offset.x);
+            onDrag={(_e, { offset: _offset }) => {
+              // Using offset for potential future functionality
             }}
-            onDragEnd={(e, { offset, velocity }) => {
+            onDragEnd={(_, { offset, velocity }) => {
               const swipeThreshold = 50;
               const swipeVelocityThreshold = 500;
 
@@ -84,7 +83,6 @@ const ProductCarousel = ({ products }: ProductCarouselProps) => {
               ) {
                 nextSlide();
               }
-              setDragOffset(0);
             }}
           >
             {products.map((product, index) => (
