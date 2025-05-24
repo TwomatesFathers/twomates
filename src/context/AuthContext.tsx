@@ -40,22 +40,53 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Function to create or update user profile
   const ensureUserProfile = async (authUser: User) => {
     try {
-      const { error } = await supabase
+      // First check if profile exists
+      const { data: existingProfile, error: checkError } = await supabase
         .from('profiles')
-        .upsert({
-          id: authUser.id,
-          email: authUser.email || '',
-          full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
-          avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || '',
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'id'
-        });
+        .select('id')
+        .eq('id', authUser.id)
+        .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no rows
 
-      if (error) {
-        console.error('Error creating/updating user profile:', error);
+      if (checkError) {
+        console.error('Error checking user profile:', checkError);
+        return;
+      }
+
+      if (existingProfile) {
+        // Profile exists, update it
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            email: authUser.email || '',
+            full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
+            avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || '',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', authUser.id);
+
+        if (updateError) {
+          console.error('Error updating user profile:', updateError);
+        } else {
+          console.log('User profile updated for:', authUser.id);
+        }
       } else {
-        console.log('User profile ensured for:', authUser.id);
+        // Profile doesn't exist, create it
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: authUser.id,
+            email: authUser.email || '',
+            full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
+            avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || '',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          console.error('Error creating user profile:', insertError);
+        } else {
+          console.log('User profile created for:', authUser.id);
+        }
       }
     } catch (error) {
       console.error('Error in ensureUserProfile:', error);
