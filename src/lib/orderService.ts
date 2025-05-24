@@ -56,8 +56,7 @@ async function createDatabaseOrder(orderData: OrderData): Promise<string> {
       id: orderId,
       user_id: orderData.userId || null,
       status: 'pending',
-      total_amount: orderData.total,
-      shipping_amount: orderData.shipping,
+      total: orderData.total,
       created_at: new Date().toISOString(),
     });
 
@@ -275,6 +274,13 @@ export async function completeOrder(orderId: string, paypalOrderId: string): Pro
     }
 
     // Step 3: Create Printful order
+    // Calculate subtotal from order items
+    const subtotal = order.order_items.reduce((sum: number, item: any) => 
+      sum + (item.price * item.quantity), 0);
+    
+    // Calculate shipping cost (free for orders ≥ $100, otherwise $10)
+    const shippingCost = subtotal >= 100 ? 0 : 10;
+    
     const orderData: OrderData = {
       items: order.order_items.map((item: any) => ({
         id: item.id,
@@ -294,9 +300,9 @@ export async function completeOrder(orderId: string, paypalOrderId: string): Pro
         country: shippingAddress.country,
         state: shippingAddress.state,
       },
-      subtotal: order.total_amount - order.shipping_amount,
-      shipping: order.shipping_amount,
-      total: order.total_amount,
+      subtotal: subtotal,
+      shipping: shippingCost,
+      total: order.total,
       userId: order.user_id,
     };
 

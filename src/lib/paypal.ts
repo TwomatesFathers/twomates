@@ -99,7 +99,8 @@ class PayPalClient {
         throw new Error('PayPal client ID and secret are required');
       }
       
-      const auth = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
+      // Use browser-compatible base64 encoding instead of Buffer
+      const auth = btoa(`${this.clientId}:${this.clientSecret}`);
       
       const response = await axios.post(
         `${this.baseUrl}/v1/oauth2/token`,

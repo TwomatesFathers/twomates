@@ -86,14 +86,17 @@ export interface OrderItem {
 
 export interface Address {
   id: string;
-  user_id: string;
+  user_id?: string;        // Nullable - for user profile addresses
+  order_id?: string;       // Nullable - for order shipping addresses  
+  type?: 'shipping' | 'billing' | 'user_default';  // Address type
   full_name: string;
   address_line1: string;
   address_line2?: string;
   city: string;
   postal_code: string;
   country: string;
-  is_default: boolean;
+  state?: string;          // For regions/provinces/states
+  is_default?: boolean;    // For user's default address
 }
 
 export default supabase; 
