@@ -121,7 +121,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Sign in with Google
   const signInWithGoogle = async () => {
-    const callbackUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
+    // Save the current location before redirecting
+    const currentPath = window.location.pathname + window.location.search;
+    sessionStorage.setItem('redirectAfterAuth', currentPath);
+    
+    // Include current path in redirect URL if not already specified
+    const baseUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
+    const callbackUrl = `${baseUrl}${currentPath !== '/' ? currentPath : ''}`;
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -133,7 +140,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Sign in with Facebook
   const signInWithFacebook = async () => {
-    const callbackUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
+    // Save the current location before redirecting
+    const currentPath = window.location.pathname + window.location.search;
+    sessionStorage.setItem('redirectAfterAuth', currentPath);
+    
+    // Include current path in redirect URL if not already specified
+    const baseUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
+    const callbackUrl = `${baseUrl}${currentPath !== '/' ? currentPath : ''}`;
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {

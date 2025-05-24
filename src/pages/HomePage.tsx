@@ -182,10 +182,10 @@ const HomePage = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-4xl font-bold font-display my-4 text-gray-900 dark:text-white">
-                Scroll down to ..
+                Scroll down ..
               </h2>
               <p className="text-4xl font-bold font-display mt-64 max-w-2xl mx-auto text-gray-900 dark:text-white">
-                .. mate?
+                mate
               </p>
             </motion.div>
           </div>

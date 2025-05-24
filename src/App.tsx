@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
 import PayPalProvider from './components/checkout/PayPalProvider';
+import AuthRedirectHandler from './components/AuthRedirectHandler';
 
 // Layouts
 import Layout from './components/layout/Layout';
@@ -30,6 +31,7 @@ function App() {
           <CartProvider>
             <PayPalProvider>
               <Router>
+                <AuthRedirectHandler />
                 <Routes>
                   <Route path="/" element={<Layout />}>
                     <Route index element={<HomePage />} />
