@@ -169,7 +169,7 @@ const HomePage = () => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="relative w-[28rem] h-56 md:w-[32rem] md:h-64 lg:w-[40rem] lg:h-80 xl:w-[44rem] xl:h-88"
+                className="relative w-full max-w-sm h-56 sm:max-w-md sm:h-60 md:max-w-lg md:h-64 lg:max-w-2xl lg:h-80 xl:max-w-3xl xl:h-88"
               >
                 <AnimatePresence mode="wait">
                   <motion.div
