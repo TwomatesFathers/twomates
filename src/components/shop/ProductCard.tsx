@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Product } from '../../lib/supabase';
 import { useCart } from '../../context/CartContext';
+import { useToast } from '../../context/ToastContext';
 import { FiShoppingCart } from 'react-icons/fi';
 
 interface ProductCardProps {
@@ -11,6 +12,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, showCartButton = true }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const { showToast } = useToast();
 
   // Function to sort sizes from small to large
   const sortSizes = (sizes: string[]): string[] => {
@@ -57,6 +59,7 @@ const ProductCard = ({ product, showCartButton = true }: ProductCardProps) => {
       ? product.available_sizes[0] 
       : product.size || 'One Size';
     addToCart(product.id, 1, defaultSize);
+    showToast('Item added to cart successfully!');
   };
 
   // Format price with currency

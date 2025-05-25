@@ -13,11 +13,11 @@ const HomePage = () => {
   // Array of logo designs to cycle through
   const logoDesigns = [
     { src: "/twomates.png", alt: "Twomates PNG", size: "w-full h-full lg:w-full lg:h-full xl:w-full xl:h-full" },
-    { src: "/rocket.png", alt: "Rocket Design", size: "w-full h-full lg:w-full lg:h-full xl:w-full xl:h-full" },
-    { src: "/splat.png", alt: "Splat Design", size: "w-full h-full lg:w-full lg:h-full xl:w-full xl:h-full" },
+    { src: "/rocket.png", alt: "Rocket Design", size: "w-full h-full lg:w-[110%] lg:h-[110%] xl:w-[140%] xl:h-[140%]" },
+    { src: "/splat.png", alt: "Splat Design", size: "w-full h-full lg:w-[110%] lg:h-[110%] xl:w-[140%] xl:h-[140%]" },
     { src: "/komsaa.png", alt: "Komsaa Design", size: "w-3/4 h-3/4 lg:w-5/6 lg:h-5/6 xl:w-full xl:h-full" },
     { src: "/hest.png", alt: "Hest Design", size: "w-5/6 h-5/6 lg:w-full lg:h-full xl:w-full xl:h-full" },
-    { src: "/villrede.png", alt: "Villrede Design", size: "w-4/5 h-4/5 lg:w-5/6 lg:h-5/6 xl:w-full xl:h-full" },
+    { src: "/villrede.png", alt: "Villrede Design", size: "w-4/5 h-4/5 lg:w-[110%] lg:h-[110%] xl:w-[130%] xl:h-[130%]" },
     { src: "/umoden.png", alt: "Umoden Design", size: "w-3/4 h-3/4 lg:w-5/6 lg:h-5/6 xl:w-full xl:h-full" },
   ];
 

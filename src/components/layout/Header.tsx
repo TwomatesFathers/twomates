@@ -5,11 +5,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
 import Logo from '../ui/Logo';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
+import AnimatedCartIcon from '../ui/AnimatedCartIcon';
+import { FiUser, FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
 
 const Header = () => {
   const { user } = useAuth();
-  const { totalItems } = useCart();
+  const { totalItems, itemAddedTrigger } = useCart();
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -79,17 +80,7 @@ const Header = () => {
               to="/cart"
               className="relative text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato p-2 transition-colors"
             >
-              <FiShoppingCart size={24} />
-              {totalItems > 0 && (
-                <motion.div 
-                  className="absolute -top-1 -right-1 bg-primary-tomato text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-                >
-                  {totalItems}
-                </motion.div>
-              )}
+              <AnimatedCartIcon totalItems={totalItems} itemAddedTrigger={itemAddedTrigger} />
             </Link>
             <Link 
               to={user ? "/account" : "/login"}

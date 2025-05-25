@@ -14,6 +14,8 @@ interface CartContextType {
   updateCartItem: (itemId: string, quantity: number) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
+  onItemAdded?: () => void;
+  itemAddedTrigger: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -22,6 +24,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cartInitialized, setCartInitialized] = useState(false);
+  const [itemAddedTrigger, setItemAddedTrigger] = useState(0);
   const { user } = useAuth();
 
   // Function to ensure user profile exists
@@ -112,6 +116,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           }
         }
         setLoading(false);
+        setCartInitialized(true);
         return;
       }
 
@@ -135,6 +140,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         console.error('Error fetching cart:', error);
       } finally {
         setLoading(false);
+        setCartInitialized(true);
       }
     };
 
@@ -146,12 +152,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Save cart to localStorage when cart changes (for non-logged in users)
   useEffect(() => {
-    if (!user && cart.length > 0) {
-      // Save without product data to avoid circular references
-      const cartToSave = cart.map(({ product, ...item }) => item);
-      localStorage.setItem('twomates_cart', JSON.stringify(cartToSave));
+    // Only save to localStorage after cart has been initialized to prevent clearing on initial load
+    if (!user && cartInitialized) {
+      if (cart.length > 0) {
+        // Save without product data to avoid circular references
+        const cartToSave = cart.map(({ product, ...item }) => item);
+        localStorage.setItem('twomates_cart', JSON.stringify(cartToSave));
+        console.log('Saved cart to localStorage:', cartToSave);
+      } else {
+        // Only remove localStorage if we're sure the cart should be empty
+        // Check if localStorage has items but current cart is empty
+        const existingCart = localStorage.getItem('twomates_cart');
+        if (existingCart) {
+          console.log('Removing cart from localStorage because cart is empty');
+          localStorage.removeItem('twomates_cart');
+        }
+      }
     }
-  }, [cart, user]);
+  }, [cart, user, cartInitialized]);
 
   // Calculate total items and price
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -217,6 +235,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             if (error) throw error;
             
             setCart([...cart, data]);
+            // Trigger animation for new item added
+            setItemAddedTrigger(prev => prev + 1);
           } catch (dbError: any) {
             // If we still get a foreign key error, try creating the profile again
             if (dbError.code === '23503' && dbError.message.includes('profiles')) {
@@ -242,6 +262,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
               
               if (retryError) throw retryError;
               setCart([...cart, data]);
+              // Trigger animation for new item added
+              setItemAddedTrigger(prev => prev + 1);
             } else {
               throw dbError;
             }
@@ -249,6 +271,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         } else {
           // For guests, just add to local state
           setCart([...cart, newItem]);
+          // Trigger animation for new item added
+          setItemAddedTrigger(prev => prev + 1);
         }
       }
     } catch (error) {
@@ -336,7 +360,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         addToCart,
         updateCartItem,
         removeFromCart,
-        clearCart
+        clearCart,
+        itemAddedTrigger
       }}
     >
       {children}

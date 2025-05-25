@@ -5,12 +5,14 @@ import { FiArrowLeft, FiShoppingCart } from 'react-icons/fi';
 import { supabase, Product } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../context/ToastContext';
 
 const ProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { theme } = useTheme();
+  const { showToast } = useToast();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<Product[]>([]);
@@ -81,6 +83,7 @@ const ProductPage = () => {
     addToCart(selectedVariant.id, quantity, selectedSize);
     
     // Show success message or redirect to cart
+    showToast('Item added to cart successfully', 'success');
     navigate('/cart');
   };
   
