@@ -1,17 +1,34 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase, Product } from "../lib/supabase";
 import ProductCarousel from "../components/ui/ProductCarousel";
-import tomatoImage from "../assets/tomato.jpeg";
-import stoppenhavImage from "../assets/stop.png";
-import holdupImage from "../assets/wait.png";
-import goImage from "../assets/go.png";
 
 const HomePage = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentLogoIndex, setCurrentLogoIndex] = useState(0);
+
+  // Array of logo designs to cycle through
+  const logoDesigns = [
+    { src: "/twomates.png", alt: "Twomates PNG", size: "w-full h-full lg:w-full lg:h-full xl:w-full xl:h-full" },
+    { src: "/rocket.png", alt: "Rocket Design", size: "w-full h-full lg:w-full lg:h-full xl:w-full xl:h-full" },
+    { src: "/splat.png", alt: "Splat Design", size: "w-full h-full lg:w-full lg:h-full xl:w-full xl:h-full" },
+    { src: "/komsaa.png", alt: "Komsaa Design", size: "w-3/4 h-3/4 lg:w-5/6 lg:h-5/6 xl:w-full xl:h-full" },
+    { src: "/hest.png", alt: "Hest Design", size: "w-5/6 h-5/6 lg:w-full lg:h-full xl:w-full xl:h-full" },
+    { src: "/villrede.png", alt: "Villrede Design", size: "w-4/5 h-4/5 lg:w-5/6 lg:h-5/6 xl:w-full xl:h-full" },
+    { src: "/umoden.png", alt: "Umoden Design", size: "w-3/4 h-3/4 lg:w-5/6 lg:h-5/6 xl:w-full xl:h-full" },
+  ];
+
+  // Auto-advance carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentLogoIndex((prev) => (prev + 1) % logoDesigns.length);
+    }, 5000); // Change every 5 seconds (increased from 3)
+
+    return () => clearInterval(interval);
+  }, [logoDesigns.length]);
 
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
@@ -146,37 +163,58 @@ const HomePage = () => {
               </motion.div>
             </div>
 
-            {/* Right: Logo */}
+            {/* Right: Logo Carousel */}
             <div className="lg:col-span-1 flex justify-center my-8 lg:my-0">
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="relative"
+                className="relative w-[28rem] h-56 md:w-[32rem] md:h-64 lg:w-[40rem] lg:h-80 xl:w-[44rem] xl:h-88"
               >
-                {/* Twomates Logo */}
-                <motion.svg
-                  width="280"
-                  height="120"
-                  viewBox="0 0 767 321"
-                  xmlns="http://www.w3.org/2000/svg"
-                  animate={{
-                    y: [0, -10, 0],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="dark:drop-shadow-none drop-shadow-md lg:w-80 lg:h-32 xl:w-96 xl:h-40"
-                >
-                  <image
-                    width="761"
-                    height="311"
-                    href="/Twomates.svg"
-                    className="brightness-110 dark:brightness-150 dark:drop-shadow-[0_0_4px_rgba(255,255,255,0.6)]"
-                  />
-                </motion.svg>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentLogoIndex}
+                    initial={{ 
+                      opacity: 0, 
+                      scale: 0.8,
+                      rotateY: -90,
+                      z: -100
+                    }}
+                    animate={{ 
+                      opacity: 1, 
+                      scale: 1,
+                      rotateY: 0,
+                      z: 0,
+                      y: [0, -10, 0]
+                    }}
+                    exit={{ 
+                      opacity: 0, 
+                      scale: 1.2,
+                      rotateY: 90,
+                      z: 100
+                    }}
+                    transition={{
+                      opacity: { duration: 0.5 },
+                      scale: { duration: 0.5 },
+                      rotateY: { duration: 0.6, ease: "easeInOut" },
+                      z: { duration: 0.6, ease: "easeInOut" },
+                      y: { 
+                        duration: 4, 
+                        repeat: Infinity, 
+                        ease: "easeInOut",
+                        delay: 0.6
+                      }
+                    }}
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ perspective: "1000px" }}
+                  >
+                    <img
+                      src={logoDesigns[currentLogoIndex].src}
+                      alt={logoDesigns[currentLogoIndex].alt}
+                      className={`${logoDesigns[currentLogoIndex].size} object-contain brightness-110 dark:brightness-150 dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.6)] drop-shadow-lg`}
+                    />
+                  </motion.div>
+                </AnimatePresence>
               </motion.div>
             </div>
           </div>
@@ -184,7 +222,7 @@ const HomePage = () => {
       </section>
 
       {/* Scroll down to mate Section - Unnecessarily Long */}
-      <section className="py-16 md:py-20 lg:py-24 bg-[color:var(--secondary-color)] dark:bg-gray-800">
+      <section className="py-16 md:py-20 lg:py-24 bg-[color:var(--secondary-color)] dark:bg-[color:var(--secondary-color)]">
         <div className="container-custom">
           {/* Step 1: Scroll down */}
           <div className="text-center min-h-[80vh] flex items-center justify-center">
@@ -224,9 +262,9 @@ const HomePage = () => {
               className="flex flex-col items-center"
             >
               <img
-                src={stoppenhavImage}
+                src="/stop.png"
                 alt="Hold up"
-                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain"
+                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain brightness-100 dark:brightness-125"
               />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-display text-gray-900 dark:text-white">
                 ap ap, hold up
@@ -272,9 +310,9 @@ const HomePage = () => {
               className="flex flex-col items-center"
             >
               <img
-                src={holdupImage}
+                src="/wait.png"
                 alt="Wait"
-                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain"
+                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain brightness-100 dark:brightness-125"
               />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-display text-gray-900 dark:text-white">
                 wait...
@@ -306,21 +344,13 @@ const HomePage = () => {
               className="flex flex-col items-center"
             >
               <img
-                src={goImage}
+                src="/go.png"
                 alt="Move on"
-                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain"
+                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain brightness-100 dark:brightness-125"
               />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-display text-gray-900 dark:text-white">
                 okay move on
               </h2>
-            </motion.div>
-            <motion.div
-              initial={{ scale: 1 }}
-              whileInView={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 1, delay: 1 }}
-              viewport={{ once: true }}
-            >
-              <div className="mt-8 text-2xl">🎉</div>
             </motion.div>
           </div>
         </div>
@@ -431,7 +461,7 @@ const HomePage = () => {
             >
               <div className="rounded-lg overflow-hidden shadow-lg bg-gray-50 dark:bg-gray-800 max-w-lg mx-auto lg:max-w-none">
                 <img
-                  src={tomatoImage}
+                  src="/tomato.jpeg"
                   alt="Two mates designing clothes"
                   className="w-full h-auto"
                 />
