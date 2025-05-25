@@ -43,28 +43,31 @@ const HomePage = () => {
 
         // Group products by printful_product_id to get unique base products
         const productGroups = new Map<string, Product>();
-        
-        (data || []).forEach(product => {
-          const groupKey = product.printful_product_id || `standalone_${product.id}`;
-          
+
+        (data || []).forEach((product) => {
+          const groupKey =
+            product.printful_product_id || `standalone_${product.id}`;
+
           if (!productGroups.has(groupKey)) {
             // First variant of this product - use it as the representative
             productGroups.set(groupKey, {
               ...product,
-              available_sizes: [product.size].filter(Boolean)
+              available_sizes: [product.size].filter(Boolean),
             });
           } else {
             // Additional variant - update the representative product
             const existingProduct = productGroups.get(groupKey)!;
-            
+
             // Collect all unique sizes
             const existingSizes = existingProduct.available_sizes || [];
-            const allSizes = new Set([...existingSizes, product.size].filter(Boolean));
-            
+            const allSizes = new Set(
+              [...existingSizes, product.size].filter(Boolean)
+            );
+
             // Choose the variant with the best attributes as representative
             // Priority: featured > in_stock > lowest price > first variant
             let shouldUpdate = false;
-            
+
             if (!existingProduct.featured && product.featured) {
               shouldUpdate = true;
             } else if (existingProduct.featured === product.featured) {
@@ -76,17 +79,17 @@ const HomePage = () => {
                 }
               }
             }
-            
+
             if (shouldUpdate) {
               productGroups.set(groupKey, {
                 ...product,
-                available_sizes: Array.from(allSizes).sort()
+                available_sizes: Array.from(allSizes).sort(),
               });
             } else {
               // Keep existing representative but update sizes
               productGroups.set(groupKey, {
                 ...existingProduct,
-                available_sizes: Array.from(allSizes).sort()
+                available_sizes: Array.from(allSizes).sort(),
               });
             }
           }
@@ -111,9 +114,7 @@ const HomePage = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section
-        className="py-16 md:py-20 lg:py-24 xl:py-32 bg-gradient-to-r from-primary-lightTomato to-primary-tomato dark:bg-gray-900 text-white"
-      >
+      <section className="py-16 md:py-20 lg:py-24 xl:py-32 bg-gradient-to-r from-primary-lightTomato to-primary-tomato dark:bg-gray-900 text-white">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[60vh] lg:min-h-[70vh]">
             {/* Left: Text Content */}
@@ -135,7 +136,10 @@ const HomePage = () => {
                 </p>
                 {/* Shop Now Button - Centered on mobile, left-aligned on desktop */}
                 <div className="flex justify-center lg:justify-start">
-                  <Link to="/shop" className="btn btn-secondary text-lg px-8 py-4">
+                  <Link
+                    to="/shop"
+                    className="btn btn-secondary text-lg px-8 py-4"
+                  >
                     Shop Now
                   </Link>
                 </div>
@@ -310,28 +314,13 @@ const HomePage = () => {
                 okay move on
               </h2>
             </motion.div>
-          </div>
-
-          {/* Step 6: mate - Final destination */}
-          <div className="text-center min-h-[80vh] flex items-center justify-center">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              initial={{ scale: 1 }}
+              whileInView={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 1, delay: 1 }}
               viewport={{ once: true }}
             >
-              <p className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold font-display text-gray-900 dark:text-white">
-                mate
-              </p>
-              {/* Optional celebration animation for the final step */}
-              <motion.div
-                initial={{ scale: 1 }}
-                whileInView={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 1, delay: 1 }}
-                viewport={{ once: true }}
-              >
-                <div className="mt-8 text-2xl">🎉</div>
-              </motion.div>
+              <div className="mt-8 text-2xl">🎉</div>
             </motion.div>
           </div>
         </div>
@@ -350,7 +339,6 @@ const HomePage = () => {
               <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold font-display mb-4 text-gray-900 dark:text-white">
                 Choose your mates
               </h2>
-            
             </motion.div>
           </div>
 
@@ -364,7 +352,9 @@ const HomePage = () => {
             </div>
           ) : error ? (
             <div className="flex flex-col justify-center items-center h-64 lg:h-80 text-center">
-              <p className="text-red-500 dark:text-red-400 mb-4 text-lg lg:text-xl">{error}</p>
+              <p className="text-red-500 dark:text-red-400 mb-4 text-lg lg:text-xl">
+                {error}
+              </p>
               <button
                 onClick={() => window.location.reload()}
                 className="btn btn-primary text-lg px-6 py-3"
