@@ -19,6 +19,23 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
+// Helper function to determine product category based on product name/type
+function determineProductCategory(productName, variantName = '') {
+  const name = (productName + ' ' + variantName).toLowerCase();
+  
+  if (name.includes('hoodie') || name.includes('sweatshirt') || name.includes('pullover')) {
+    return 'hoodies';
+  }
+  
+  if (name.includes('hat') || name.includes('cap') || name.includes('bag') || 
+      name.includes('mug') || name.includes('sticker') || name.includes('accessory')) {
+    return 'accessories';
+  }
+  
+  // Default to tshirts for t-shirts, tank tops, long sleeves, etc.
+  return 'tshirts';
+}
+
 // Get all products from Printful
 async function getProducts() {
   try {
@@ -46,6 +63,37 @@ async function syncPrintfulProducts() {
   try {
     console.log('Starting Printful product sync...');
     
+    // First, update any existing products with 'printful' category to correct categories
+    console.log('Updating existing product categories...');
+    const { data: existingProducts, error: existingProductsError } = await supabase
+      .from('products')
+      .select('id, name, description, category')
+      .eq('category', 'printful');
+    
+    if (existingProductsError) {
+      console.error('Error fetching existing products:', existingProductsError);
+    } else if (existingProducts && existingProducts.length > 0) {
+      console.log(`Found ${existingProducts.length} products with 'printful' category to update`);
+      
+      for (const product of existingProducts) {
+        const newCategory = determineProductCategory(product.name, product.description);
+        console.log(`Updating product "${product.name}" from "printful" to "${newCategory}"`);
+        
+        const { error: updateError } = await supabase
+          .from('products')
+          .update({ category: newCategory })
+          .eq('id', product.id);
+        
+        if (updateError) {
+          console.error(`Error updating product ${product.id}:`, updateError);
+        } else {
+          console.log(`Successfully updated product "${product.name}" to category "${newCategory}"`);
+        }
+      }
+    } else {
+      console.log('No products with "printful" category found to update');
+    }
+    
     // Get all products from Printful
     const printfulProducts = await getProducts();
     console.log(`Found ${printfulProducts.length} products in Printful`);
@@ -72,6 +120,9 @@ async function syncPrintfulProducts() {
         // Get the clean base product name from sync_product
         const baseProductName = syncProduct.name || 'Untitled Product';
         console.log(`Base product name: ${baseProductName}`);
+        
+        // Determine the appropriate category for this product
+        const productCategory = determineProductCategory(baseProductName);
         
         // Process each variant as a separate product record
         for (const variant of syncVariants) {
@@ -112,7 +163,7 @@ async function syncPrintfulProducts() {
             image_url: imageUrl,
             in_stock: variant.availability_status === 'active' && !variant.is_ignored,
             featured: false,
-            category: 'printful',
+            category: productCategory, // Use determined category instead of 'printful'
             
             // Printful identifiers
             printful_product_id: syncProduct.id.toString(),

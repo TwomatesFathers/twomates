@@ -223,6 +223,23 @@ class PrintfulClient {
 const printfulApiKey = import.meta.env.VITE_PRINTFUL_API_KEY || '';
 export const printful = new PrintfulClient(printfulApiKey);
 
+// Helper function to determine product category based on product name/type
+function determineProductCategory(productName: string, variantName?: string): string {
+  const name = (productName + ' ' + (variantName || '')).toLowerCase();
+  
+  if (name.includes('hoodie') || name.includes('sweatshirt') || name.includes('pullover')) {
+    return 'hoodies';
+  }
+  
+  if (name.includes('hat') || name.includes('cap') || name.includes('bag') || 
+      name.includes('mug') || name.includes('sticker') || name.includes('accessory')) {
+    return 'accessories';
+  }
+  
+  // Default to tshirts for t-shirts, tank tops, long sleeves, etc.
+  return 'tshirts';
+}
+
 // Function to sync Printful products with Supabase
 export async function syncPrintfulProducts() {
   try {
@@ -234,6 +251,9 @@ export async function syncPrintfulProducts() {
       const detailedProduct = await printful.getProduct(product.id);
       console.log(detailedProduct);
       
+      // Determine the appropriate category for this product
+      const productCategory = determineProductCategory(detailedProduct.name);
+      
       // Create a base product first
       const baseProductData = {
         name: detailedProduct.name,
@@ -242,7 +262,7 @@ export async function syncPrintfulProducts() {
         image_url: detailedProduct.variants[0]?.product.image || '',
         in_stock: true,
         featured: false, // Set default value
-        category: 'printful', // Set default category
+        category: productCategory, // Use determined category instead of 'printful'
         printful_product_id: detailedProduct.id.toString(),
         is_base_product: true,
         variant_name: 'Default',
@@ -304,7 +324,7 @@ export async function syncPrintfulProducts() {
           image_url: variant.product.image,
           in_stock: variant.synced,
           featured: false,
-          category: baseProductData.category,
+          category: productCategory, // Use determined category instead of baseProductData.category
           printful_product_id: detailedProduct.id.toString(),
           printful_variant_id: variant.id.toString(),
           sku: variant.sku,
