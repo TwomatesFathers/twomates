@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FiCheck, FiX } from 'react-icons/fi';
 
 interface ToastProps {
