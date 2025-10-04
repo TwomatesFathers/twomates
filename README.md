@@ -2,6 +2,8 @@
 
 A modern e-commerce platform built with React, TypeScript, Supabase, and integrated with Printful for print-on-demand products and PayPal for payments.
 
+*Updated: October 2025*
+
 ## Features
 
 - 🛍️ Modern e-commerce interface
