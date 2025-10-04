@@ -44,10 +44,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         .from('admin_users')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle(); // Use maybeSingle to avoid errors when no record exists
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error checking admin status:', error);
+        // Don't fail completely, just set as non-admin and continue
         setIsAdmin(false);
         setIsSuperAdmin(false);
         setAdminUser(null);
@@ -57,7 +58,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setAdminUser(adminData);
       } else {
         // Check user metadata for admin flag (fallback)
-        const isAdminFromMetadata = user.user_metadata?.is_admin === true || 
+        const isAdminFromMetadata = user.user_metadata?.is_admin === true ||
                                    user.user_metadata?.is_admin === 'true';
         const isSuperAdminFromMetadata = user.user_metadata?.is_super_admin === true || 
                                         user.user_metadata?.is_super_admin === 'true';
@@ -100,13 +101,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;
 };
 
-export const useAdmin = (): AdminContextType => {
+// Custom hook exported at the end for Fast Refresh compatibility
+export function useAdmin(): AdminContextType {
   const context = useContext(AdminContext);
   if (context === undefined) {
     throw new Error('useAdmin must be used within an AdminProvider');
   }
   return context;
-};
+}
 
 // Higher-order component for admin route protection
 export const withAdminAuth = <P extends object>(

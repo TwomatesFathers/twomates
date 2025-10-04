@@ -211,7 +211,7 @@ const HomePage = () => {
                     <img
                       src={logoDesigns[currentLogoIndex].src}
                       alt={logoDesigns[currentLogoIndex].alt}
-                      className={`${logoDesigns[currentLogoIndex].size} object-contain brightness-110 dark:brightness-150 dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.6)] drop-shadow-lg`}
+                      className={`${logoDesigns[currentLogoIndex].size} object-contain`}
                     />
                   </motion.div>
                 </AnimatePresence>
@@ -264,7 +264,7 @@ const HomePage = () => {
               <img
                 src="/stop.png"
                 alt="Hold up"
-                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain brightness-100 dark:brightness-125"
+                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain"
               />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-display text-gray-900 dark:text-white">
                 ap ap, hold up
@@ -312,7 +312,7 @@ const HomePage = () => {
               <img
                 src="/wait.png"
                 alt="Wait"
-                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain brightness-100 dark:brightness-125"
+                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain"
               />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-display text-gray-900 dark:text-white">
                 wait...
@@ -346,7 +346,7 @@ const HomePage = () => {
               <img
                 src="/go.png"
                 alt="Move on"
-                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain brightness-100 dark:brightness-125"
+                className="w-40 h-40 md:w-52 md:h-52 lg:w-64 lg:h-64 mb-6 object-contain"
               />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-display text-gray-900 dark:text-white">
                 okay move on

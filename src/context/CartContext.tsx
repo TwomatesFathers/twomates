@@ -132,12 +132,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           .eq('user_id', user.id);
 
         if (error) {
-          throw error;
+          console.error('Error fetching cart:', error);
+          // Set empty cart on error to prevent app from hanging
+          setCart([]);
+        } else {
+          setCart(data || []);
         }
-
-        setCart(data || []);
       } catch (error) {
         console.error('Error fetching cart:', error);
+        // Set empty cart on error to prevent app from hanging
+        setCart([]);
       } finally {
         setLoading(false);
         setCartInitialized(true);
@@ -370,10 +374,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 };
 
 // Custom hook to use cart context
-export const useCart = () => {
+export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;
-}; 
+} 

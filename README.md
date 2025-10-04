@@ -61,6 +61,33 @@ VITE_PROVIDER_REDIRECT_URI=http://localhost:5173
    - Paste them into Supabase Google provider settings
    - Save the configuration
 
+### Setting up Facebook OAuth
+
+1. **In Facebook Developers Console**:
+   - Go to [developers.facebook.com](https://developers.facebook.com)
+   - Create a new app or select existing one
+   - Go to Facebook Login → Settings
+   - Add valid OAuth Redirect URIs:
+     - `https://your-project-ref.supabase.co/auth/v1/callback`
+
+2. **Configure App Settings**:
+   - Go to Settings → Basic
+   - Copy your App ID and App Secret
+   - Add your domain to App Domains
+   - Set Privacy Policy URL and Terms of Service URL
+
+3. **In Supabase Dashboard**:
+   - Go to Authentication → Providers
+   - Enable Facebook provider
+   - Add your Facebook credentials:
+     - Client ID: (Your Facebook App ID)
+     - Client Secret: (Your Facebook App Secret)
+   - Save the configuration
+
+4. **Facebook App Review** (for production):
+   - Submit your app for review to access user email
+   - Required for public use beyond test users
+
 ## Installation
 
 ```bash

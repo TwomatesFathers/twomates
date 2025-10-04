@@ -18,6 +18,7 @@ import ProductPage from './pages/ProductPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import LoginPage from './pages/LoginPage';
+import AuthDebugPage from './pages/AuthDebugPage';
 import RegisterPage from './pages/RegisterPage';
 import AccountPage from './pages/AccountPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -55,6 +56,7 @@ function App() {
                         <Route path="login" element={<LoginPage />} />
                         <Route path="register" element={<RegisterPage />} />
                         <Route path="account/*" element={<AccountPage />} />
+                        <Route path="debug-auth" element={<AuthDebugPage />} />
                         
                         {/* Admin Routes */}
                         <Route path="admin" element={<ProtectedAdminDashboard />} />

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -10,8 +10,16 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signInWithGoogle, signInWithFacebook } = useAuth();
+  const { signIn, signInWithGoogle, signInWithFacebook, user, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect to account if user becomes authenticated
+  useEffect(() => {
+    if (!loading && user) {
+      console.log('User authenticated on login page, redirecting to account');
+      navigate('/account', { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +46,7 @@ const LoginPage = () => {
         console.error('Google sign-in error:', error);
         throw error;
       }
-      // Note: Don't navigate here as the OAuth flow will handle the redirect
+      // OAuth flow will handle the redirect, useEffect will catch successful auth
     } catch (err: any) {
       console.error('Google sign-in failed:', err);
       setError(err.message || 'Failed to sign in with Google. Please try again.');
@@ -48,11 +56,18 @@ const LoginPage = () => {
 
   const handleFacebookSignIn = async () => {
     setError(null);
+    setIsLoading(true);
     try {
       const { error } = await signInWithFacebook();
-      if (error) throw error;
+      if (error) {
+        console.error('Facebook sign-in error:', error);
+        throw error;
+      }
+      // Note: Don't navigate here as the OAuth flow will handle the redirect
     } catch (err: any) {
+      console.error('Facebook sign-in failed:', err);
       setError(err.message || 'Failed to sign in with Facebook. Please try again.');
+      setIsLoading(false);
     }
   };
 
@@ -149,7 +164,8 @@ const LoginPage = () => {
             <button
               type="button"
               onClick={handleFacebookSignIn}
-              className="flex items-center justify-center py-3 px-4 rounded-md bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
+              disabled={isLoading}
+              className={`flex items-center justify-center py-3 px-4 rounded-md bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               <FiFacebook className="mr-2 text-[#1877F2]" size={20} />
               <span>Facebook</span>

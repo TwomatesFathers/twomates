@@ -74,11 +74,18 @@ const RegisterPage = () => {
 
   const handleFacebookSignIn = async () => {
     setError(null);
+    setIsLoading(true);
     try {
       const { error } = await signInWithFacebook();
-      if (error) throw error;
+      if (error) {
+        console.error('Facebook sign-in error:', error);
+        throw error;
+      }
+      // Note: Don't navigate here as the OAuth flow will handle the redirect
     } catch (err: any) {
+      console.error('Facebook sign-in failed:', err);
       setError(err.message || 'Failed to sign in with Facebook. Please try again.');
+      setIsLoading(false);
     }
   };
 
@@ -245,7 +252,8 @@ const RegisterPage = () => {
               <button
                 type="button"
                 onClick={handleFacebookSignIn} 
-                className="w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600"
+                disabled={isLoading}
+                className={`w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
                 <FiFacebook className="mr-2 h-5 w-5 text-[#1877F2]" />
                 Facebook

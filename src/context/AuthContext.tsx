@@ -18,15 +18,6 @@ interface AuthContextType {
 // Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Custom hook to use auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
 // Provider component
 interface AuthProviderProps {
   children: ReactNode;
@@ -37,90 +28,84 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Function to create or update user profile
-  const ensureUserProfile = async (authUser: User) => {
-    try {
-      // First check if profile exists
-      const { data: existingProfile, error: checkError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', authUser.id)
-        .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no rows
-
-      if (checkError) {
-        console.error('Error checking user profile:', checkError);
-        return;
-      }
-
-      if (existingProfile) {
-        // Profile exists, try to update it with minimal data
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({
-            full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
-            avatar_url: authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || '',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', authUser.id);
-
-        if (updateError) {
-          console.error('Error updating user profile:', updateError);
-        } else {
-          console.log('User profile updated for:', authUser.id);
-        }
-      } else {
-        // Profile doesn't exist, create it with minimal required data
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert({
-            id: authUser.id,
-            // Only include fields that definitely exist in the table
-            created_at: new Date().toISOString(),
-          });
-
-        if (insertError) {
-          console.error('Error creating user profile:', insertError);
-        } else {
-          console.log('User profile created for:', authUser.id);
-        }
-      }
-    } catch (error) {
-      console.error('Error in ensureUserProfile:', error);
-    }
-  };
-
   useEffect(() => {
+    let mounted = true;
+
     // Get session from Supabase
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      const authUser = session?.user as User || null;
-      setUser(authUser);
-      
-      // Create/update profile when session is loaded
-      if (authUser) {
-        ensureUserProfile(authUser);
+    const initializeAuth = async () => {
+      try {
+        console.log('Initializing auth...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        if (mounted) {
+          console.log('Initial session check:', session ? 'Session found' : 'No session');
+          setSession(session);
+          const authUser = session?.user as User || null;
+          setUser(authUser);
+          
+          // Profile creation disabled to prevent loops
+          
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      
-      setLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setSession(session);
-        const authUser = session?.user as User || null;
-        setUser(authUser);
+        console.log('Auth state change:', event, session ? 'Session present' : 'No session');
         
-        // Create/update profile when user signs in
-        if (authUser && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-          await ensureUserProfile(authUser);
+        if (mounted) {
+          setSession(session);
+          const authUser = session?.user as User || null;
+          setUser(authUser);
+          
+          // Temporarily disable profile updates to fix infinite loops
+          // TODO: Re-enable profile updates with better logic later
+          /*
+          if (authUser && event === 'SIGNED_IN' && 
+              !profileUpdateInProgress.current && 
+              !processedUserIds.current.has(authUser.id)) {
+            
+            console.log('User signed in for first time, ensuring profile exists');
+            profileUpdateInProgress.current = true;
+            processedUserIds.current.add(authUser.id);
+            
+            ensureUserProfile(authUser)
+              .then(() => {
+                console.log('Profile creation/update completed');
+                profileUpdateInProgress.current = false;
+              })
+              .catch(error => {
+                console.error('Error ensuring user profile:', error);
+                profileUpdateInProgress.current = false;
+              });
+          }
+          */
+          
+          // Set loading to false immediately after setting user state
+          console.log('Setting loading to false');
+          setLoading(false);
         }
-        
-        setLoading(false);
       }
     );
 
-    return () => subscription.unsubscribe();
+    // Cleanup function
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Sign up with email and password
@@ -148,12 +133,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Sign in with Google
   const signInWithGoogle = async () => {
-    // Save the current location before redirecting
-    const currentPath = window.location.pathname + window.location.search;
-    sessionStorage.setItem('redirectAfterAuth', currentPath);
+    // Clear any existing redirect path to prevent confusion
+    sessionStorage.removeItem('redirectAfterAuth');
     
-    // Use the configured redirect URI or fallback to origin
-    const redirectTo = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
+    // Use the configured redirect URI, but ensure it matches the current protocol
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const redirectTo = isDevelopment 
+      ? 'http://localhost:5173' 
+      : (import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin);
+    
+    console.log('Google OAuth redirect URI:', redirectTo);
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -174,13 +163,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const currentPath = window.location.pathname + window.location.search;
     sessionStorage.setItem('redirectAfterAuth', currentPath);
     
-    // Use simple base URL for now to debug the user agent issue
-    const callbackUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
+    // Use the configured redirect URI, but ensure it matches the current protocol
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const redirectTo = isDevelopment 
+      ? 'http://localhost:5173' 
+      : (import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin);
+    
+    console.log('Facebook OAuth redirect URI:', redirectTo);
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        redirectTo: callbackUrl
+        redirectTo: redirectTo,
+        scopes: 'email',
       }
     });
     return { error };
@@ -188,7 +183,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Sign out
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      // Clear any stored redirect path
+      sessionStorage.removeItem('redirectAfterAuth');
+      
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+        throw error;
+      }
+      
+      // Force clear local state
+      setUser(null);
+      setSession(null);
+    } catch (error) {
+      console.error('Error in signOut:', error);
+      throw error;
+    }
   };
 
   return (
@@ -207,4 +219,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       {children}
     </AuthContext.Provider>
   );
-}; 
+};
+
+// Custom hook exported separately for Fast Refresh compatibility
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

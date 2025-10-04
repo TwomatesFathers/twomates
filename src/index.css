@@ -20,12 +20,12 @@
 .dark {
   --primary-color: #FF8C7C;
   --primary-hover: #FF6347;
-  --secondary-color: #7BC67F;
-  --secondary-hover: #4CAF50;
+  --secondary-color: #4CAF50;
+  --secondary-hover: #3D8C40;
   --background: #121212;
   --card: #1F2937;
   --text: #F3F4F6;
-  --accent: #FF6347;
+  --accent: #7BC67F;
 }
 
 /* Global styles */
@@ -43,23 +43,7 @@ body {
   max-width: 100vw;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-hover);
-}
+/* Scrollbar styling removed - using default browser scrollbars */
 
 /* Theme transition animation */
 .theme-switch {
@@ -84,7 +68,7 @@ body {
 }
 
 .dark .logo-image {
-  filter: brightness(1.5) drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+  filter: none;
 }
 
 /* Custom styling */

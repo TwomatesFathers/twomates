@@ -334,20 +334,33 @@ const Settings = () => {
 
 // Main Account Page Component
 const AccountPage = () => {
-  const { user, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
-  // If not signed in, redirect to login page
+  // Debug logging
   useEffect(() => {
-    if (!user) {
+    console.log('AccountPage render - loading:', loading, 'user:', !!user, 'pathname:', location.pathname);
+  }, [loading, user, location.pathname]);
+  
+  // If not signed in and not loading, redirect to login page
+  useEffect(() => {
+    if (!loading && !user) {
+      console.log('No user found, redirecting to login');
       navigate('/login', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
   
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+    try {
+      await signOut();
+      // Navigate to home page after successful sign out
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Failed to sign out:', error);
+      // Still navigate away even if there's an error
+      navigate('/', { replace: true });
+    }
   };
   
   // Determine active tab based on the path
@@ -356,7 +369,28 @@ const AccountPage = () => {
                     location.pathname.includes('/addresses') ? 'addresses' :
                     location.pathname.includes('/settings') ? 'settings' : '';
   
-  if (!user) return null;
+  // Show loading state only when actually loading
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-tomato mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading account...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // If no user after loading is complete, this will trigger the redirect useEffect above
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+        <div className="text-center">
+          <p className="text-gray-600 dark:text-gray-300">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="container-custom py-12 bg-white dark:bg-gray-900">
