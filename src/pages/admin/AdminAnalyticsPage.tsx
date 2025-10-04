@@ -18,8 +18,6 @@ interface AnalyticsData {
   topProducts: Array<{
     id: number;
     name: string;
-    size: string;
-    color: string;
     total_sold: number;
     revenue: number;
   }>;
@@ -49,14 +47,14 @@ const AdminAnalyticsPage: React.FC = () => {
 
       if (ordersError) throw ordersError;
 
-      // Fetch total products
+      // Fetch total products (grouped by name to avoid counting each size/color variant)
       const { data: products, error: productsError } = await supabase
         .from('products')
         .select('id, name, size, color');
 
       if (productsError) throw productsError;
 
-      // Fetch total users (profiles)
+      // Fetch total users from profiles (now reliable after our fix)
       const { data: users, error: usersError } = await supabase
         .from('profiles')
         .select('id');
@@ -66,7 +64,12 @@ const AdminAnalyticsPage: React.FC = () => {
       // Calculate totals
       const totalOrders = orders?.length || 0;
       const totalRevenue = orders?.reduce((sum, order) => sum + Number(order.total), 0) || 0;
-      const totalProducts = products?.length || 0;
+      
+      // Count unique products by name (not by size/color variants)
+      const uniqueProductNames = new Set(products?.map(p => p.name) || []);
+      const totalProducts = uniqueProductNames.size;
+      
+      // Use profiles count (now accurate after our fix)
       const totalUsers = users?.length || 0;
 
       // Get recent orders (sorted by created_at descending)
@@ -74,16 +77,21 @@ const AdminAnalyticsPage: React.FC = () => {
         ?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
         ?.slice(0, 10) || [];
 
-      // Calculate top products based on current available data
-      // Since we don't have order_items yet, we'll show products with their info
-      const topProducts = products?.slice(0, 5).map(product => ({
-        id: product.id,
-        name: product.name,
-        size: product.size || 'N/A',
-        color: product.color || 'N/A',
-        total_sold: 0, // Will be 0 until we have order_items table
-        revenue: 0, // Will be 0 until we have order_items table
-      })) || [];
+      // Calculate top products based on unique product names (not variants)
+      // Group products by name to avoid showing each size/color combination separately
+      const productsByName = new Map();
+      products?.forEach(product => {
+        if (!productsByName.has(product.name)) {
+          productsByName.set(product.name, {
+            id: product.id,
+            name: product.name,
+            total_sold: 0, // Will be calculated from order_items when available
+            revenue: 0, // Will be calculated from order_items when available
+          });
+        }
+      });
+      
+      const topProducts = Array.from(productsByName.values()).slice(0, 5);
 
       // Calculate real monthly revenue from orders
       const monthlyRevenue = [];
@@ -276,7 +284,7 @@ const AdminAnalyticsPage: React.FC = () => {
                     {product.name}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {product.size} • {product.color}
+                    Multiple variants available
                   </p>
                 </div>
                 <div className="text-right">
