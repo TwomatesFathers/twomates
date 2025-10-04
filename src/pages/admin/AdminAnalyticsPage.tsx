@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../context/AdminContext';
 import { useToast } from '../../context/ToastContext';
 import { supabase } from '../../lib/supabase';
-import { FiTrendingUp, FiDollarSign, FiPackage, FiUsers, FiShoppingCart, FiEye } from 'react-icons/fi';
+import { FiTrendingUp, FiTrendingDown, FiDollarSign, FiPackage, FiUsers, FiShoppingCart, FiEye } from 'react-icons/fi';
 
 interface AnalyticsData {
   totalOrders: number;
   totalRevenue: number;
   totalProducts: number;
   totalUsers: number;
+  ordersChange: string;
+  revenueChange: string;
+  productsChange: string;
+  usersChange: string;
   recentOrders: Array<{
     id: string;
     total: number;
@@ -57,7 +61,7 @@ const AdminAnalyticsPage: React.FC = () => {
       // Fetch total users from profiles (now reliable after our fix)
       const { data: users, error: usersError } = await supabase
         .from('profiles')
-        .select('id');
+        .select('id, created_at');
 
       if (usersError) throw usersError;
 
@@ -71,6 +75,56 @@ const AdminAnalyticsPage: React.FC = () => {
       
       // Use profiles count (now accurate after our fix)
       const totalUsers = users?.length || 0;
+
+      // Calculate historical comparison (last 30 days vs previous 30 days)
+      const currentTime = new Date();
+      const thirtyDaysAgo = new Date(currentTime.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const sixtyDaysAgo = new Date(currentTime.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+      // Current period (last 30 days)
+      const currentPeriodOrders = orders?.filter(order => {
+        const orderDate = new Date(order.created_at);
+        return orderDate >= thirtyDaysAgo;
+      }) || [];
+
+      // Previous period (30-60 days ago)
+      const previousPeriodOrders = orders?.filter(order => {
+        const orderDate = new Date(order.created_at);
+        return orderDate >= sixtyDaysAgo && orderDate < thirtyDaysAgo;
+      }) || [];
+
+      // Calculate changes
+      const currentOrdersCount = currentPeriodOrders.length;
+      const previousOrdersCount = previousPeriodOrders.length;
+      const currentRevenue = currentPeriodOrders.reduce((sum, order) => sum + Number(order.total), 0);
+      const previousRevenue = previousPeriodOrders.reduce((sum, order) => sum + Number(order.total), 0);
+
+      // Calculate percentage changes
+      const calculatePercentageChange = (current: number, previous: number): string => {
+        if (previous === 0) {
+          return current > 0 ? '+100%' : '0%';
+        }
+        const change = ((current - previous) / previous) * 100;
+        const sign = change >= 0 ? '+' : '';
+        return `${sign}${Math.round(change)}%`;
+      };
+
+      const ordersChange = calculatePercentageChange(currentOrdersCount, previousOrdersCount);
+      const revenueChange = calculatePercentageChange(currentRevenue, previousRevenue);
+      
+      // Calculate user growth (new users in last 30 days vs previous 30 days)
+      const currentPeriodUsers = users?.filter(user => {
+        const userDate = new Date(user.created_at);
+        return userDate >= thirtyDaysAgo;
+      }) || [];
+
+      const previousPeriodUsers = users?.filter(user => {
+        const userDate = new Date(user.created_at);
+        return userDate >= sixtyDaysAgo && userDate < thirtyDaysAgo;
+      }) || [];
+
+      const usersChange = calculatePercentageChange(currentPeriodUsers.length, previousPeriodUsers.length);
+      const productsChange = '0%'; // Products don't change frequently, could be enhanced later
 
       // Get recent orders (sorted by created_at descending)
       const recentOrders = orders
@@ -95,11 +149,11 @@ const AdminAnalyticsPage: React.FC = () => {
 
       // Calculate real monthly revenue from orders
       const monthlyRevenue = [];
-      const now = new Date();
+      const currentDate = new Date();
       
       for (let i = 5; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const nextDate = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+        const nextDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i + 1, 1);
         
         const monthOrders = orders?.filter(order => {
           const orderDate = new Date(order.created_at);
@@ -120,6 +174,10 @@ const AdminAnalyticsPage: React.FC = () => {
         totalRevenue,
         totalProducts,
         totalUsers,
+        ordersChange,
+        revenueChange,
+        productsChange,
+        usersChange,
         recentOrders,
         topProducts,
         monthlyRevenue,
@@ -172,30 +230,48 @@ const AdminAnalyticsPage: React.FC = () => {
       value: analytics?.totalOrders || 0,
       icon: FiShoppingCart,
       color: 'bg-blue-500',
-      change: '+12%',
+      change: analytics?.ordersChange || '0%',
     },
     {
       title: 'Total Revenue',
       value: `$${(analytics?.totalRevenue || 0).toFixed(2)}`,
       icon: FiDollarSign,
       color: 'bg-green-500',
-      change: '+8%',
+      change: analytics?.revenueChange || '0%',
     },
     {
       title: 'Products',
       value: analytics?.totalProducts || 0,
       icon: FiPackage,
       color: 'bg-purple-500',
-      change: '+3%',
+      change: analytics?.productsChange || '0%',
     },
     {
       title: 'Users',
       value: analytics?.totalUsers || 0,
       icon: FiUsers,
       color: 'bg-orange-500',
-      change: '+15%',
+      change: analytics?.usersChange || '0%',
     },
   ];
+
+  // Helper function to determine trend direction and color
+  const getTrendInfo = (change: string) => {
+    if (change === '0%') {
+      return {
+        icon: FiDollarSign,
+        color: 'text-gray-500 dark:text-gray-400',
+        bgColor: 'bg-gray-100 dark:bg-gray-700',
+      };
+    }
+    
+    const isPositive = change.startsWith('+');
+    return {
+      icon: isPositive ? FiTrendingUp : FiTrendingDown,
+      color: isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400',
+      bgColor: isPositive ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20',
+    };
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -208,16 +284,26 @@ const AdminAnalyticsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {statCards.map((stat) => {
           const Icon = stat.icon;
+          const trendInfo = getTrendInfo(stat.change);
+          const TrendIcon = trendInfo.icon;
+          
           return (
             <div key={stat.title} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.title}</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stat.value}</p>
-                  <p className="text-sm text-green-600 dark:text-green-400 flex items-center mt-1">
-                    <FiTrendingUp className="h-4 w-4 mr-1" />
-                    {stat.change}
-                  </p>
+                  {stat.change !== '0%' && (
+                    <p className={`text-sm ${trendInfo.color} flex items-center mt-1`}>
+                      <TrendIcon className="h-4 w-4 mr-1" />
+                      {stat.change} vs last 30 days
+                    </p>
+                  )}
+                  {stat.change === '0%' && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      No change vs last 30 days
+                    </p>
+                  )}
                 </div>
                 <div className={`p-3 rounded-lg ${stat.color} text-white`}>
                   <Icon className="h-6 w-6" />
