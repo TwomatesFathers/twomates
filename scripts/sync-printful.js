@@ -255,6 +255,7 @@ async function syncPrintfulProducts() {
     console.log('Checking for variants to remove...');
     console.log('Processed variant IDs:', processedVariantIds.size);
     
+    // Check products with Printful IDs
     const { data: allDbVariants, error: fetchError } = await supabase
       .from('products')
       .select('id, name, printful_variant_id, size')
@@ -263,7 +264,7 @@ async function syncPrintfulProducts() {
     if (fetchError) {
       console.error('Error fetching existing variants:', fetchError);
     } else {
-      console.log(`Found ${allDbVariants.length} variants in database`);
+      console.log(`Found ${allDbVariants.length} variants with Printful IDs in database`);
       
       const variantsToRemove = allDbVariants.filter(variant => {
         const shouldRemove = variant.printful_variant_id && !processedVariantIds.has(variant.printful_variant_id);
@@ -289,8 +290,40 @@ async function syncPrintfulProducts() {
           }
         }
       } else {
-        console.log('No variants need to be removed');
+        console.log('No variants with Printful IDs need to be removed');
       }
+    }
+    
+    // Also check for products without Printful IDs (legacy/orphaned products)
+    console.log('Checking for products without Printful IDs...');
+    const { data: orphanedProducts, error: orphanError } = await supabase
+      .from('products')
+      .select('id, name, size')
+      .is('printful_variant_id', null);
+      
+    if (orphanError) {
+      console.error('Error fetching orphaned products:', orphanError);
+    } else if (orphanedProducts && orphanedProducts.length > 0) {
+      console.log(`Found ${orphanedProducts.length} products without Printful IDs:`);
+      for (const product of orphanedProducts) {
+        console.log(`- Attempting to remove orphaned product: ${product.name} - ${product.size || 'N/A'} (ID: ${product.id})`);
+        
+        const { data: deleteData, error: deleteError } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', product.id)
+          .select(); // Add select to see what was deleted
+        
+        if (deleteError) {
+          console.error(`❌ Error removing orphaned product ${product.name} (ID: ${product.id}):`, deleteError);
+          console.error('Error details:', JSON.stringify(deleteError, null, 2));
+        } else {
+          console.log(`✅ Successfully removed orphaned product: ${product.name} (ID: ${product.id})`);
+          console.log('Deleted data:', deleteData);
+        }
+      }
+    } else {
+      console.log('No orphaned products found');
     }
     
     console.log('Printful product sync completed successfully');

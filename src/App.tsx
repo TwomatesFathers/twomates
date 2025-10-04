@@ -26,6 +26,8 @@ import NotFoundPage from './pages/NotFoundPage';
 // Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
 import { withAdminAuth } from './context/AdminContext';
 
 // Create a client for React Query
@@ -34,6 +36,8 @@ const queryClient = new QueryClient();
 // Create admin-protected components
 const ProtectedAdminDashboard = withAdminAuth(AdminDashboardPage);
 const ProtectedAdminProducts = withAdminAuth(AdminProductsPage, 'products:read');
+const ProtectedAdminUsers = withAdminAuth(AdminUsersPage, 'users:read');
+const ProtectedAdminAnalytics = withAdminAuth(AdminAnalyticsPage, 'analytics:read');
 
 function App() {
   return (
@@ -61,6 +65,8 @@ function App() {
                         {/* Admin Routes */}
                         <Route path="admin" element={<ProtectedAdminDashboard />} />
                         <Route path="admin/products" element={<ProtectedAdminProducts />} />
+                        <Route path="admin/users" element={<ProtectedAdminUsers />} />
+                        <Route path="admin/analytics" element={<ProtectedAdminAnalytics />} />
                         
                         <Route path="*" element={<NotFoundPage />} />
                       </Route>

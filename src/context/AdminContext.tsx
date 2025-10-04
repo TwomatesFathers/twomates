@@ -7,6 +7,8 @@ interface AdminUser {
   is_super_admin: boolean;
   permissions: string[];
   created_at: string;
+  full_name?: string;
+  email?: string;
 }
 
 interface AdminContextType {
@@ -53,9 +55,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsSuperAdmin(false);
         setAdminUser(null);
       } else if (adminData) {
+        // Fetch user profile information
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle();
+
         setIsAdmin(true);
         setIsSuperAdmin(adminData.is_super_admin);
-        setAdminUser(adminData);
+        setAdminUser({
+          ...adminData,
+          full_name: profileData?.full_name || user.user_metadata?.full_name || user.user_metadata?.name,
+          email: user.email,
+        });
       } else {
         // Check user metadata for admin flag (fallback)
         const isAdminFromMetadata = user.user_metadata?.is_admin === true ||

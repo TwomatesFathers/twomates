@@ -7,7 +7,7 @@ import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
 import Logo from '../ui/Logo';
 import AnimatedCartIcon from '../ui/AnimatedCartIcon';
-import { FiUser, FiMenu, FiX, FiSun, FiMoon, FiSettings } from 'react-icons/fi';
+import { FiUser, FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
 
 const Header = () => {
   const { user } = useAuth();
@@ -58,9 +58,11 @@ const Header = () => {
               Contact
             </Link>
             {isAdmin && (
-              <Link to="/admin" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
-                <FiSettings className="inline-block mr-1" size={16} />
-                Admin
+              <Link 
+                to="/admin" 
+                className="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 dark:from-purple-500 dark:to-indigo-500 dark:hover:from-purple-600 dark:hover:to-indigo-600 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105"
+              >
+                Admin Panel
               </Link>
             )}
           </nav>
@@ -147,6 +149,15 @@ const Header = () => {
                 >
                   Contact
                 </Link>
+                {isAdmin && (
+                  <Link 
+                    to="/admin" 
+                    className="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-sm"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Admin Panel
+                  </Link>
+                )}
 
                 {/* Mobile Theme Toggle */}
                 <div className="flex items-center pt-2">
