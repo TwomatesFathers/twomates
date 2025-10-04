@@ -57,11 +57,18 @@ const RegisterPage = () => {
 
   const handleGoogleSignIn = async () => {
     setError(null);
+    setIsLoading(true);
     try {
       const { error } = await signInWithGoogle();
-      if (error) throw error;
+      if (error) {
+        console.error('Google sign-in error:', error);
+        throw error;
+      }
+      // Note: Don't navigate here as the OAuth flow will handle the redirect
     } catch (err: any) {
+      console.error('Google sign-in failed:', err);
       setError(err.message || 'Failed to sign in with Google. Please try again.');
+      setIsLoading(false);
     }
   };
 
@@ -229,7 +236,8 @@ const RegisterPage = () => {
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
-                className="w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600"
+                disabled={isLoading}
+                className={`w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
                 <FcGoogle className="mr-2 h-5 w-5" />
                 Google

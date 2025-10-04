@@ -155,10 +155,21 @@ async function syncPrintfulProducts() {
             imageUrl = variant.product.image;
           }
           
+          // Create a mapping of custom descriptions for our products
+          const customDescriptions = {
+            'twomates': 'Klassisk Twomates design - perfekt for hverdagsbruk og casual anledninger. Laget med høy kvalitet og komfort i fokus.',
+            'hest (rygg)': 'Morsom og fargerik design med hest-motiv på ryggen. Perfekt for de som vil skille seg ut med humor og stil.',
+            'villrede (rygg)': 'Uttrykksfullt design med \'villrede\' på ryggen. For deg som ikke er redd for å vise følelser og personlighet.',
+            'stopp en halv': 'Klassisk norsk uttrykk på plagg. \'Stopp en halv\' - perfekt for hverdagsbruk med et snev av norsk humor.',
+            'usikker (rygg)': 'Ærlig og relaterbart design med \'usikker\' på ryggen. For alle som kjenner seg igjen i følelsen.',
+            'umoden': 'Selvironisk og morsom design. \'Umoden\' - for deg som ikke tar seg selv altfor høytidelig.',
+            'kom så': 'Motiverende design med \'kom så\' - perfekt for treningsøkter eller som oppmuntring i hverdagen.'
+          };
+
           // Prepare variant data with all required fields
           const variantData = {
             name: baseProductName, // Use clean base name, not variant name
-            description: baseProductName,
+            description: customDescriptions[baseProductName] || baseProductName, // Use our custom descriptions
             price: parseFloat(variant.retail_price || '0'),
             image_url: imageUrl,
             in_stock: variant.availability_status === 'active' && !variant.is_ignored,
@@ -187,24 +198,33 @@ async function syncPrintfulProducts() {
           // Check if this variant already exists
           const { data: existingVariant, error: queryError } = await supabase
             .from('products')
-            .select('id, name, printful_variant_id')
+            .select('id, name, printful_variant_id, admin_edited, description, price, featured, in_stock')
             .eq('printful_variant_id', variant.id.toString())
             .single();
-          
+
           if (queryError && queryError.code !== 'PGRST116') {
             console.error('Error querying variant:', queryError);
             continue;
           }
-          
+
           if (existingVariant) {
-            // Update existing variant
+            // Update existing variant, but preserve admin-edited fields
+            const updateData = { ...variantData };
+            
+            // If admin has edited this product, preserve their changes for certain fields
+            if (existingVariant.admin_edited) {
+              console.log(`Preserving admin changes for: ${baseProductName} - ${variantData.size}`);
+              updateData.description = existingVariant.description; // Keep admin description
+              updateData.featured = existingVariant.featured; // Keep admin featured status
+              updateData.in_stock = existingVariant.in_stock; // Keep admin stock status
+              updateData.price = existingVariant.price; // Keep admin price
+            }
+            
             console.log(`Updating variant: ${baseProductName} - ${variantData.size}`);
             const { error: updateError } = await supabase
               .from('products')
-              .update(variantData)
-              .eq('id', existingVariant.id);
-            
-            if (updateError) {
+              .update(updateData)
+              .eq('id', existingVariant.id);            if (updateError) {
               console.error('Error updating variant:', updateError);
             } else {
               console.log(`Successfully updated variant: ${variantData.size}`);

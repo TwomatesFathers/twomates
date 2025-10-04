@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
+import { useAdmin } from '../../context/AdminContext';
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
 import Logo from '../ui/Logo';
 import AnimatedCartIcon from '../ui/AnimatedCartIcon';
-import { FiUser, FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
+import { FiUser, FiMenu, FiX, FiSun, FiMoon, FiSettings } from 'react-icons/fi';
 
 const Header = () => {
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
   const { totalItems, itemAddedTrigger } = useCart();
   const { theme, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,6 +57,12 @@ const Header = () => {
             <Link to="/contact" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
               Contact
             </Link>
+            {isAdmin && (
+              <Link to="/admin" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
+                <FiSettings className="inline-block mr-1" size={16} />
+                Admin
+              </Link>
+            )}
           </nav>
 
           {/* User, Cart Icons, and Theme Toggle */}

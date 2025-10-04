@@ -6,6 +6,7 @@ export interface PrintfulProduct {
   id: number;
   external_id: string;
   name: string;
+  description?: string;
   variants: PrintfulVariant[];
   thumbnail_url: string;
   is_ignored: boolean;

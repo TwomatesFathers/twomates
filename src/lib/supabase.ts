@@ -30,6 +30,11 @@ export interface Product {
   color: string; // e.g., "Black", "White"
   availability_status: string; // e.g., "active", "discontinued"
   
+  // Admin tracking fields
+  admin_edited?: boolean;
+  last_edited_by?: string;
+  last_edited_at?: string;
+  
   // UI helper fields (computed)
   base_product_name?: string; // Clean name without size (for grouping)
   available_sizes?: string[]; // All sizes for this product group (computed in queries)
@@ -47,6 +52,8 @@ export interface User {
     name?: string;
     picture?: string;
     email?: string;
+    is_admin?: boolean | string;
+    is_super_admin?: boolean | string;
   };
 }
 

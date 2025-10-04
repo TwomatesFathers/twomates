@@ -152,13 +152,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const currentPath = window.location.pathname + window.location.search;
     sessionStorage.setItem('redirectAfterAuth', currentPath);
     
-    // Use simple base URL for now to debug the user agent issue
-    const callbackUrl = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
+    // Use the configured redirect URI or fallback to origin
+    const redirectTo = import.meta.env.VITE_PROVIDER_REDIRECT_URI || window.location.origin;
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: callbackUrl
+        redirectTo: redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
       }
     });
     return { error };

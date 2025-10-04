@@ -31,7 +31,7 @@ VITE_PAYPAL_CLIENT_ID=your_paypal_client_id_here
 VITE_PAYPAL_CLIENT_SECRET=your_paypal_client_secret_here
 VITE_PAYPAL_ENVIRONMENT=sandbox
 
-# OAuth Provider Redirect URI (optional)
+# OAuth Provider Redirect URI (important for Google/Facebook auth)
 VITE_PROVIDER_REDIRECT_URI=http://localhost:5173
 ```
 
@@ -40,6 +40,26 @@ VITE_PROVIDER_REDIRECT_URI=http://localhost:5173
 1. **Supabase**: Create a project at [supabase.com](https://supabase.com)
 2. **Printful**: Get API key from [Printful Developer Portal](https://developers.printful.com/)
 3. **PayPal**: Create an app at [PayPal Developer](https://developer.paypal.com/)
+
+### Setting up Google OAuth
+
+1. **In Supabase Dashboard**:
+   - Go to Authentication → Providers
+   - Enable Google provider
+   - Add your Google OAuth credentials
+
+2. **In Google Cloud Console**:
+   - Create a new project or select existing one
+   - Enable Google+ API
+   - Create OAuth 2.0 credentials
+   - Add authorized redirect URIs:
+     - For development: `https://your-project-ref.supabase.co/auth/v1/callback`
+     - For production: `https://your-domain.com/auth/callback`
+
+3. **Configure in Supabase**:
+   - Copy Client ID and Client Secret from Google Console
+   - Paste them into Supabase Google provider settings
+   - Save the configuration
 
 ## Installation
 
