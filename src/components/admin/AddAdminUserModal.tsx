@@ -125,10 +125,14 @@ const AddAdminUserModal: React.FC<AddAdminUserModalProps> = ({ isOpen, onClose, 
       return;
     }
 
-    if (selectedPermissions.length === 0) {
+    // For super admins, we don't need to validate permissions as they get all permissions
+    if (!isSuperAdmin && selectedPermissions.length === 0) {
       showToast('Please select at least one permission', 'error');
       return;
     }
+
+    // For super admins, use all permissions marker
+    const permissionsToUse = isSuperAdmin ? ['*'] : selectedPermissions;
 
     setIsSubmitting(true);
     try {
@@ -137,7 +141,7 @@ const AddAdminUserModal: React.FC<AddAdminUserModalProps> = ({ isOpen, onClose, 
         await AdminUserService.addAdminUser(
           selectedUser.id,
           isSuperAdmin,
-          selectedPermissions
+          permissionsToUse
         );
         showToast('Admin user added successfully', 'success');
         onSuccess();
@@ -153,7 +157,7 @@ const AddAdminUserModal: React.FC<AddAdminUserModalProps> = ({ isOpen, onClose, 
         .insert({
           id: selectedUser.id,
           is_super_admin: isSuperAdmin,
-          permissions: selectedPermissions,
+          permissions: permissionsToUse,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         });

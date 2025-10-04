@@ -140,7 +140,7 @@ const AdminUsersPage: React.FC = () => {
         .from('admin_users')
         .update({
           is_super_admin: editState.is_super_admin,
-          permissions: editState.permissions,
+          permissions: editState.is_super_admin ? ['*'] : editState.permissions, // Super admins get all permissions
           updated_at: new Date().toISOString(),
         })
         .eq('id', userId);
@@ -298,34 +298,52 @@ const AdminUsersPage: React.FC = () => {
                           
                           <div>
                             <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Permissions:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {availablePermissions.map((permission) => (
-                                <button
-                                  key={permission}
-                                  onClick={() => togglePermission(user.id, permission)}
-                                  className={`px-2 py-1 text-xs rounded-full border ${
-                                    editState?.permissions.includes(permission)
-                                      ? 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-800 dark:text-indigo-100 dark:border-indigo-600'
-                                      : 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'
-                                  }`}
-                                >
-                                  {permission}
-                                </button>
-                              ))}
-                            </div>
+                            {editState?.is_super_admin ? (
+                              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                <span>Super Admin has all permissions</span>
+                              </div>
+                            ) : (
+                              <div className="flex flex-wrap gap-2">
+                                {availablePermissions.map((permission) => (
+                                  <button
+                                    key={permission}
+                                    onClick={() => togglePermission(user.id, permission)}
+                                    className={`px-2 py-1 text-xs rounded-full border ${
+                                      editState?.permissions.includes(permission)
+                                        ? 'bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-800 dark:text-indigo-100 dark:border-indigo-600'
+                                        : 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'
+                                    }`}
+                                  >
+                                    {permission}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ) : (
                         <div className="mt-1">
                           <div className="flex flex-wrap gap-1">
-                            {user.permissions.map((permission) => (
-                              <span
-                                key={permission}
-                                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-                              >
-                                {permission}
-                              </span>
-                            ))}
+                            {user.is_super_admin ? (
+                              // Show all permissions for super admins regardless of what's stored in DB
+                              availablePermissions.filter(p => p !== '*').map((permission) => (
+                                <span
+                                  key={permission}
+                                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                                >
+                                  {permission}
+                                </span>
+                              ))
+                            ) : (
+                              user.permissions.map((permission) => (
+                                <span
+                                  key={permission}
+                                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                                >
+                                  {permission}
+                                </span>
+                              ))
+                            )}
                           </div>
                         </div>
                       )}

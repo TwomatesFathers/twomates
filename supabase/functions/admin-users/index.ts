@@ -1,5 +1,39 @@
+// @ts-ignore: Deno module resolution
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from '@supabase/supabase-js'
+
+// Declare Deno global for TypeScript
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
+
+// Type definitions
+interface AdminUser {
+  id: string;
+  is_super_admin: boolean;
+  permissions: string[];
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+}
+
+interface Profile {
+  id: string;
+  email?: string;
+  full_name?: string;
+  avatar_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface AuthUser {
+  id: string;
+  email?: string;
+  user_metadata?: any;
+  created_at: string;
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,7 +42,7 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { 
@@ -146,7 +180,7 @@ serve(async (req) => {
   }
 })
 
-async function handleListUsers(supabaseAdmin: any, adminUser: any) {
+async function handleListUsers(supabaseAdmin: any, adminUser: AdminUser) {
   // Check if user has users:read permission
   if (!adminUser.is_super_admin && !adminUser.permissions.includes('users:read') && !adminUser.permissions.includes('*')) {
     return new Response(
@@ -185,9 +219,9 @@ async function handleListUsers(supabaseAdmin: any, adminUser: any) {
     }
 
     // Combine the data
-    const enrichedAdminUsers = adminUsers?.map(admin => {
-      const profile = profiles?.find(p => p.id === admin.id)
-      const authUser = authUsers.users?.find(u => u.id === admin.id)
+    const enrichedAdminUsers = adminUsers?.map((admin: AdminUser) => {
+      const profile = profiles?.find((p: Profile) => p.id === admin.id)
+      const authUser = authUsers.users?.find((u: AuthUser) => u.id === admin.id)
       
       return {
         ...admin,
@@ -216,7 +250,7 @@ async function handleListUsers(supabaseAdmin: any, adminUser: any) {
   }
 }
 
-async function handleSearchUsers(supabaseAdmin: any, adminUser: any, query: string) {
+async function handleSearchUsers(supabaseAdmin: any, adminUser: AdminUser, query: string) {
   // Check if user has users:write permission (needed to add users)
   if (!adminUser.is_super_admin && !adminUser.permissions.includes('users:write') && !adminUser.permissions.includes('*')) {
     return new Response(
@@ -238,7 +272,7 @@ async function handleSearchUsers(supabaseAdmin: any, adminUser: any, query: stri
       throw adminError
     }
 
-    const existingAdminIds = existingAdmins?.map(admin => admin.id) || []
+    const existingAdminIds = existingAdmins?.map((admin: AdminUser) => admin.id) || []
 
     // Get all users from auth
     const { data: authUsers, error: authError } = await supabaseAdmin.auth.admin.listUsers()
@@ -257,7 +291,7 @@ async function handleSearchUsers(supabaseAdmin: any, adminUser: any, query: stri
     }
 
     // Filter and search users
-    const searchResults = []
+    const searchResults: any[] = []
     const lowerQuery = query.toLowerCase()
 
     for (const authUser of authUsers.users || []) {
@@ -265,7 +299,7 @@ async function handleSearchUsers(supabaseAdmin: any, adminUser: any, query: stri
       if (existingAdminIds.includes(authUser.id)) continue
 
       const email = authUser.email || ''
-      const profile = profiles?.find(p => p.id === authUser.id)
+      const profile = profiles?.find((p: Profile) => p.id === authUser.id)
       const fullName = profile?.full_name || authUser.user_metadata?.full_name || ''
 
       // Check if matches search query
@@ -307,7 +341,7 @@ async function handleSearchUsers(supabaseAdmin: any, adminUser: any, query: stri
   }
 }
 
-async function handleAddAdmin(req: Request, supabaseAdmin: any, adminUser: any) {
+async function handleAddAdmin(req: Request, supabaseAdmin: any, adminUser: AdminUser) {
   // Check if user has users:write permission
   if (!adminUser.is_super_admin && !adminUser.permissions.includes('users:write') && !adminUser.permissions.includes('*')) {
     return new Response(
@@ -339,7 +373,7 @@ async function handleAddAdmin(req: Request, supabaseAdmin: any, adminUser: any) 
       .insert({
         id: userId,
         is_super_admin: isSuperAdmin || false,
-        permissions,
+        permissions: isSuperAdmin ? ['*'] : permissions, // Super admins get all permissions
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         created_by: adminUser.id
@@ -357,11 +391,11 @@ async function handleAddAdmin(req: Request, supabaseAdmin: any, adminUser: any) 
       }
     )
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in handleAddAdmin:', error)
     
     // Handle duplicate admin error
-    if (error.code === '23505') {
+    if (error?.code === '23505') {
       return new Response(
         JSON.stringify({ error: 'User is already an admin' }),
         { 

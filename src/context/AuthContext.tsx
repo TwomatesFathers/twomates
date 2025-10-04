@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           const authUser = session?.user as User || null;
           setUser(authUser);
           
-          // Profile creation disabled to prevent loops
+          // Profile creation is now handled by database trigger
           
           setLoading(false);
         }
@@ -71,31 +71,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           const authUser = session?.user as User || null;
           setUser(authUser);
           
-          // Temporarily disable profile updates to fix infinite loops
-          // TODO: Re-enable profile updates with better logic later
-          /*
-          if (authUser && event === 'SIGNED_IN' && 
-              !profileUpdateInProgress.current && 
-              !processedUserIds.current.has(authUser.id)) {
-            
-            console.log('User signed in for first time, ensuring profile exists');
-            profileUpdateInProgress.current = true;
-            processedUserIds.current.add(authUser.id);
-            
-            ensureUserProfile(authUser)
-              .then(() => {
-                console.log('Profile creation/update completed');
-                profileUpdateInProgress.current = false;
-              })
-              .catch(error => {
-                console.error('Error ensuring user profile:', error);
-                profileUpdateInProgress.current = false;
-              });
-          }
-          */
+          // Profile creation is now handled by database trigger
+          // No need for application-level profile creation
           
-          // Set loading to false immediately after setting user state
-          console.log('Setting loading to false');
           setLoading(false);
         }
       }
