@@ -30,7 +30,7 @@ interface ProductEditState {
 const AdminProductsPage: React.FC = () => {
   const { hasPermission, isSuperAdmin } = useAdmin();
   const { showToast } = useToast();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [, setProducts] = useState<Product[]>([]);
   const [groupedProducts, setGroupedProducts] = useState<ProductGroup[]>([]);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [editingGroups, setEditingGroups] = useState<Set<string>>(new Set());
@@ -54,7 +54,7 @@ const AdminProductsPage: React.FC = () => {
       groups.get(key)!.push(product);
     });
 
-    return Array.from(groups.entries()).map(([name, variants]) => {
+    return Array.from(groups.entries()).map(([, variants]) => {
       // Sort variants by size order (S, M, L, XL, etc.)
       const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', '3XL'];
       variants.sort((a, b) => {

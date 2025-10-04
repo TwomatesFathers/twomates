@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAdmin } from '../../context/AdminContext';
 import { useToast } from '../../context/ToastContext';
 import { supabase } from '../../lib/supabase';
+import { AdminUserService } from '../../lib/adminUserService';
 import { FiEdit2, FiSave, FiX, FiTrash2, FiUserPlus, FiShield, FiUser } from 'react-icons/fi';
+import AddAdminUserModal from '../../components/admin/AddAdminUserModal';
 
 interface AdminUser {
   id: string;
@@ -23,12 +25,13 @@ interface EditState {
 }
 
 const AdminUsersPage: React.FC = () => {
-  const { hasPermission, isSuperAdmin } = useAdmin();
+  const { hasPermission } = useAdmin();
   const { showToast } = useToast();
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUsers, setEditingUsers] = useState<Set<string>>(new Set());
   const [editStates, setEditStates] = useState<EditState>({});
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const canRead = hasPermission('users:read');
   const canWrite = hasPermission('users:write');
@@ -46,7 +49,16 @@ const AdminUsersPage: React.FC = () => {
     try {
       setLoading(true);
       
-      // Fetch admin users with their auth data
+      // Try to use the admin service first
+      try {
+        const enrichedAdminUsers = await AdminUserService.listAdminUsers();
+        setAdminUsers(enrichedAdminUsers);
+        return;
+      } catch (edgeFunctionError) {
+        console.warn('Edge function not available, falling back to direct database access:', edgeFunctionError);
+      }
+
+      // Fallback to direct database access
       const { data: adminData, error: adminError } = await supabase
         .from('admin_users')
         .select('*')
@@ -54,7 +66,7 @@ const AdminUsersPage: React.FC = () => {
 
       if (adminError) throw adminError;
 
-      // Get user emails and names from auth.users
+      // Get user profiles
       const userIds = adminData?.map(user => user.id) || [];
       const { data: authData, error: authError } = await supabase
         .from('profiles')
@@ -65,18 +77,14 @@ const AdminUsersPage: React.FC = () => {
         console.warn('Could not fetch user profiles:', authError);
       }
 
-      // Get emails from auth.users (requires RLS bypass or service role)
-      const { data: authUsers, error: authUsersError } = await supabase.auth.admin.listUsers();
-      
-      // Combine the data
+      // Combine the data (without email addresses since admin API isn't available)
       const enrichedAdminUsers = adminData?.map(admin => {
         const profile = authData?.find(p => p.id === admin.id);
-        const authUser = authUsersError ? null : authUsers.users?.find(u => u.id === admin.id);
         
         return {
           ...admin,
-          email: authUser?.email,
-          full_name: profile?.full_name || authUser?.user_metadata?.full_name,
+          email: 'Email not available (requires Edge Function)',
+          full_name: profile?.full_name || 'Name not available',
         };
       }) || [];
 
@@ -235,7 +243,7 @@ const AdminUsersPage: React.FC = () => {
         </div>
         {canWrite && (
           <button
-            onClick={() => showToast('Add user functionality coming soon', 'info')}
+            onClick={() => setShowAddModal(true)}
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             <FiUserPlus className="mr-2 h-4 w-4" />
@@ -373,6 +381,16 @@ const AdminUsersPage: React.FC = () => {
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by adding an admin user.</p>
         </div>
       )}
+
+      {/* Add Admin User Modal */}
+      <AddAdminUserModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={() => {
+          fetchAdminUsers();
+          setShowAddModal(false);
+        }}
+      />
     </div>
   );
 };
