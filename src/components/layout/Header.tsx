@@ -51,12 +51,6 @@ const Header = () => {
             <Link to="/shop" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
               Shop
             </Link>
-            <Link to="/about" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
-              About
-            </Link>
-            <Link to="/contact" className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium">
-              Contact
-            </Link>
             {isAdmin && (
               <Link 
                 to="/admin" 
@@ -134,20 +128,6 @@ const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Shop
-                </Link>
-                <Link 
-                  to="/about" 
-                  className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  About
-                </Link>
-                <Link 
-                  to="/contact" 
-                  className="text-text-light hover:text-primary-tomato dark:text-white dark:hover:text-primary-lightTomato transition-colors font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Contact
                 </Link>
                 {isAdmin && (
                   <Link 

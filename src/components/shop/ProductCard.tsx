@@ -129,9 +129,6 @@ const ProductCard = ({ product, showCartButton = true }: ProductCardProps) => {
             }}>
               {formattedPrice}
             </span>
-            <span className="text-xs capitalize text-gray-600 dark:text-gray-400">
-              {product.category}
-            </span>
           </div>
           
           {/* Available sizes indicator */}

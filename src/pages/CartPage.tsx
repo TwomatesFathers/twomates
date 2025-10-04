@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiShoppingBag, FiTrash2, FiArrowRight } from 'react-icons/fi';
+import { FiShoppingBag, FiTrash2, FiArrowRight, FiMinus, FiPlus } from 'react-icons/fi';
 import { useCart } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -175,35 +175,39 @@ const CartPage = () => {
 
                       {/* Quantity Controls */}
                       <div className="flex items-center mt-4 sm:mt-0">
-                        <div className="flex items-center mr-4">
+                        <div className="flex items-center mr-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
                           <button
                             onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
                             disabled={isUpdating || item.quantity <= 1}
-                            className={`px-2 py-1 border rounded-l-md ${
+                            className={`w-10 h-10 flex items-center justify-center ${
                               theme === 'dark' 
-                                ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50' 
-                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50'
-                            } transition-colors disabled:cursor-not-allowed`}
+                                ? 'text-gray-300 hover:text-white hover:bg-gray-600 disabled:text-gray-500 disabled:bg-gray-700' 
+                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 disabled:text-gray-400 disabled:bg-gray-50'
+                            } transition-all duration-200 disabled:cursor-not-allowed group`}
+                            aria-label="Decrease quantity"
                           >
-                            -
+                            <FiMinus size={16} className="group-hover:scale-110 transition-transform" />
                           </button>
-                          <span className={`w-12 text-center border-y ${
+                          
+                          <div className={`w-12 h-10 flex items-center justify-center font-medium text-sm ${
                             theme === 'dark' 
-                              ? 'border-gray-600 bg-gray-700 text-white' 
-                              : 'border-gray-300 bg-white text-gray-900'
+                              ? 'text-white bg-gray-700 border-x border-gray-600' 
+                              : 'text-gray-900 bg-white border-x border-gray-200'
                           }`}>
                             {item.quantity}
-                          </span>
+                          </div>
+                          
                           <button
                             onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
                             disabled={isUpdating}
-                            className={`px-2 py-1 border rounded-r-md ${
+                            className={`w-10 h-10 flex items-center justify-center ${
                               theme === 'dark' 
-                                ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600 disabled:opacity-50' 
-                                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-50'
-                            } transition-colors disabled:cursor-not-allowed`}
+                                ? 'text-gray-300 hover:text-white hover:bg-gray-600 disabled:text-gray-500 disabled:bg-gray-700' 
+                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 disabled:text-gray-400 disabled:bg-gray-50'
+                            } transition-all duration-200 disabled:cursor-not-allowed group`}
+                            aria-label="Increase quantity"
                           >
-                            +
+                            <FiPlus size={16} className="group-hover:scale-110 transition-transform" />
                           </button>
                         </div>
 

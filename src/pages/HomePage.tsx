@@ -413,7 +413,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* About Section */}
+      {/* Our Story Section */}
       <section className="py-16 md:py-20 lg:py-24 bg-gray-300 dark:bg-gray-900">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 xl:gap-20 items-center">
@@ -430,26 +430,6 @@ const HomePage = () => {
               <p className="mb-8 text-lg md:text-xl lg:text-2xl text-gray-700 dark:text-gray-300">
                 Is not up to us to define
               </p>
-              <Link
-                to="/about"
-                className="inline-flex items-center font-medium text-lg md:text-xl text-primary-tomato hover:text-primary-darkTomato dark:text-primary-tomato dark:hover:text-primary-lightTomato transition-colors duration-200"
-              >
-                Learn why
-                <svg
-                  className="ml-2 w-6 h-6 lg:w-7 lg:h-7"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  ></path>
-                </svg>
-              </Link>
             </motion.div>
 
             <motion.div
@@ -470,6 +450,7 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
     </div>
   );
 };

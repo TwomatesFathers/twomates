@@ -291,23 +291,11 @@ const ProductPage = () => {
           {/* Additional Info */}
           <div className="mt-8 space-y-4">
             <div>
-              <h3 className={`font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Category</h3>
-              <p className={`capitalize ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{displayProduct.category}</p>
-            </div>
-            <div>
               <h3 className={`font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Availability</h3>
               <p className={`${displayProduct.in_stock ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {displayProduct.in_stock ? 'In Stock' : 'Out of Stock'}
               </p>
             </div>
-            {availableSizes.length > 1 && (
-              <div>
-                <h3 className={`font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>Available Sizes</h3>
-                <p className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {availableSizes.join(', ')}
-                </p>
-              </div>
-            )}
           </div>
         </motion.div>
       </div>

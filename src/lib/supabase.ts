@@ -13,7 +13,7 @@ export interface Product {
   name: string; // Clean base product name (e.g., "twomates")
   description: string;
   price: number; // Variant-specific price
-  category: string;
+  category?: string; // Made optional since we're removing categories
   image_url: string;
   in_stock: boolean;
   featured: boolean;
